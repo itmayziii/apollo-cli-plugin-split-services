@@ -6,6 +6,8 @@
   "scripts": {
     "build": "npm run clean && npx tsc --project tsconfig.json && npx oclif-dev manifest",
     "clean": "rm -rf dist/*",
+    "lint": "npx eslint --config .eslintrc.js --ext .js,.ts ./src",
+    "lint:fix": "npx eslint --fix --config .eslintrc.js --ext .js,.ts ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Tommy May III <tommymay37@gmail.com>",
@@ -18,7 +20,6 @@
   "dependencies": {
     "@oclif/command": "~1.5.19",
     "@oclif/config": "~1.13.3",
-    "cli-ux": "~5.3.3",
     "listr": "^0.14.3",
     "rxjs": "^6.5.3"
   },
@@ -26,12 +27,28 @@
     "@oclif/dev-cli": "~1.22.2",
     "@types/listr": "^0.14.2",
     "ts-node": "~8.4.1",
-    "typescript": "~3.5.0"
+    "typescript": "~3.7.2",
+    "eslint-config-standard": "~14.1.0",
+    "eslint-plugin-import": "~2.18.2",
+    "eslint-plugin-node": "~10.0.0",
+    "eslint-plugin-promise": "~4.2.1",
+    "eslint-plugin-standard": "~4.0.1",
+    "@types/node": "~12.12.6",
+    "@typescript-eslint/eslint-plugin": "~2.6.1",
+    "@typescript-eslint/parser": "~2.6.1",
+    "commitizen": "~4.0.3",
+    "cz-conventional-changelog": "~3.0.2",
+    "eslint": "~6.6.0"
   },
   "files": [
     "dist"
   ],
   "oclif": {
     "commands": "./dist/commands"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
