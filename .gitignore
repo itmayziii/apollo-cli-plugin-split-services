@@ -1,0 +1,9 @@
+# Dependencies #
+node_modules/
+
+# IDE #
+.idea/
+
+# Compiled Output #
+dist/
+oclif.manifest.json

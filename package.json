@@ -1,0 +1,37 @@
+{
+  "name": "apollo-cli-plugin-split-services",
+  "version": "0.0.1",
+  "description": "Oclif plugin to make working with multiple services in different packages easier.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run clean && npx tsc --project tsconfig.json && npx oclif-dev manifest",
+    "clean": "rm -rf dist/*",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tommy May III <tommymay37@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "oclif-plugin",
+    "split",
+    "servies"
+  ],
+  "dependencies": {
+    "@oclif/command": "~1.5.19",
+    "@oclif/config": "~1.13.3",
+    "cli-ux": "~5.3.3",
+    "listr": "^0.14.3",
+    "rxjs": "^6.5.3"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "~1.22.2",
+    "@types/listr": "^0.14.2",
+    "ts-node": "~8.4.1",
+    "typescript": "~3.5.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "oclif": {
+    "commands": "./dist/commands"
+  }
+}
