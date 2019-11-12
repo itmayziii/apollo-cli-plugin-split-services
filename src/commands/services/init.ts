@@ -1,11 +1,8 @@
 import { Command, flags } from '@oclif/command'
 import * as path from 'path'
-import * as util from 'util'
-import * as childProcess from 'child_process'
-import * as fs from 'fs'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
-import { getConfigPath } from '../../helpers'
+import { getConfigPath, pathExists, isJavascriptProject, exec } from '../../helpers'
 
 interface ApolloConfig {
   services?: Service[]
@@ -16,9 +13,6 @@ interface Service {
   gitURL?: string
   directory?: string
 }
-
-const exec = util.promisify(childProcess.exec)
-const access = util.promisify(fs.access)
 
 export default class ServiceInit extends Command {
     public static description = 'describe the command here'
@@ -79,14 +73,4 @@ function createTask (title: string, directory: string, gitURL: string): Listr.Li
       })
     }
   }
-}
-
-function pathExists (directory: string): Promise<boolean> {
-  return access(directory, fs.constants.F_OK)
-    .then(() => true)
-    .catch(() => false)
-}
-
-function isJavascriptProject (directory: string): Promise<boolean> {
-  return pathExists(path.resolve(directory, 'package.json'))
 }
