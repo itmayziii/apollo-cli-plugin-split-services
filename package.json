@@ -8,7 +8,8 @@
     "clean": "rm -rf dist/*",
     "lint": "npx eslint --config .eslintrc.js --ext .js,.ts ./src",
     "lint:fix": "npx eslint --fix --config .eslintrc.js --ext .js,.ts ./src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "npm run lint && npm run build && npx standard-version"
   },
   "author": "Tommy May III <tommymay37@gmail.com>",
   "license": "MIT",
