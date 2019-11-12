@@ -2,6 +2,7 @@ import { Command, flags } from '@oclif/command'
 import * as path from 'path'
 import * as util from 'util'
 import * as childProcess from 'child_process'
+import * as fs from 'fs'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
 import { getConfigPath } from '../../helpers'
@@ -17,6 +18,7 @@ interface Service {
 }
 
 const exec = util.promisify(childProcess.exec)
+const access = util.promisify(fs.access)
 
 export default class ServiceInit extends Command {
     public static description = 'describe the command here'
@@ -58,16 +60,33 @@ function createTask (title: string, directory: string, gitURL: string): Listr.Li
     title,
     task (): Listr.ListrTaskResult<void> {
       return new Observable(observer => {
-        const absoluteDirectory = path.resolve(process.cwd(), 'services', directory)
-        observer.next('Cloning')
-        exec(`git clone ${gitURL} ${absoluteDirectory}`)
-          .then(() => {
-            observer.next('Installing Dependencies')
-            return exec('npm install', { cwd: absoluteDirectory })
+        const serviceDirectory = path.resolve(process.cwd(), 'services', directory)
+        pathExists(serviceDirectory)
+          .then(function cloneService (doesServiceExist) {
+            console.log('doesServiceExist', doesServiceExist)
+            if (doesServiceExist) return
+            observer.next('Cloning')
+            return exec(`git clone ${gitURL} ${serviceDirectory}`)
+          })
+          .then(() => observer.next('Installing/Updating Dependencies'))
+          .then(() => isJavascriptProject(serviceDirectory))
+          .then(function installJavascriptDependencies (isJavascriptProject) { // Future might provide support for Golang using go.mod etc..
+            if (!isJavascriptProject) return
+            return exec('npm install', { cwd: serviceDirectory })
           })
           .then(() => observer.complete())
           .catch((error) => observer.error(error))
       })
     }
   }
+}
+
+function pathExists (directory: string): Promise<boolean> {
+  return access(directory, fs.constants.F_OK)
+    .then(() => true)
+    .catch(() => false)
+}
+
+function isJavascriptProject (directory: string): Promise<boolean> {
+  return pathExists(path.resolve(directory, 'package.json'))
 }
