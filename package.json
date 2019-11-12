@@ -42,7 +42,8 @@
     "eslint": "~6.6.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "oclif.manifest.json"
   ],
   "oclif": {
     "commands": "./dist/commands"
