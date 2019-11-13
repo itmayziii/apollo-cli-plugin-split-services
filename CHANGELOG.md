@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.4](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.1.3...v1.1.4) (2019-11-13)
+
+
+### Bug Fixes
+
+* **tsconfig.json:** fixed compilation module to be commonJS ([944695c](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/944695c))
+
+
+
 ## [1.1.3](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.1.2...v1.1.3) (2019-11-13)
 
 
