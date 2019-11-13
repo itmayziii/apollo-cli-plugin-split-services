@@ -4,12 +4,12 @@
   "description": "Oclif plugin extending Apollo's CLI to make working with multiple services in different packages easier.",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && npx tsc --project tsconfig.json && npx oclif-dev manifest",
+    "build": "npm run clean && npx tsc --project tsconfig.json",
     "clean": "rm -rf dist/*",
     "lint": "npx eslint --config .eslintrc.js --ext .js,.ts ./src",
     "lint:fix": "npx eslint --fix --config .eslintrc.js --ext .js,.ts ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "package": "npm run lint && npm run build && npx standard-version",
+    "package": "npm run lint && npm run build && npx standard-version && npx oclif-dev manifest",
     "tar": "npm run build && npm pack"
   },
   "author": "Tommy May III <tommymay37@gmail.com>",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@oclif/command": "~1.5.19",
     "@oclif/config": "~1.13.3",
+    "@oclif/plugin-help": "2.2.1",
     "listr": "^0.14.3",
     "rxjs": "^6.5.3"
   },
