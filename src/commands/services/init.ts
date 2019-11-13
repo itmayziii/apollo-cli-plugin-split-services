@@ -15,7 +15,7 @@ interface Service {
 }
 
 export default class ServiceInit extends Command {
-    public static description = 'describe the command here'
+    public static description = 'Pulls down and installs dependencies for all services listed in your apollo.config.js file.'
     public static examples = [
       '$ apollo services:init --config dist/apollo.config.js'
     ]
@@ -35,29 +35,29 @@ export default class ServiceInit extends Command {
         return Promise.resolve()
       }
 
-      const clonedRepos = new Listr({ concurrent: true })
-      apolloConfig.services.forEach((service) => {
+      const tasks = apolloConfig.services.reduce<Listr.ListrTask[]>((accumulator, service) => {
         if (!service.gitURL || !service.name || !service.directory) {
           this.error('Every service should have a "gitURL", "name", and "directory"')
-          return
+          return accumulator
         }
 
-        clonedRepos.add(createTask(service.name, service.directory, service.gitURL))
-      })
+        return [...accumulator, createTask(service.name, service.directory, service.gitURL)]
+      }, [])
 
-      return clonedRepos.run()
+      const listr = new Listr({ concurrent: true })
+      listr.add(tasks)
+      return listr.run()
     }
 }
 
-function createTask (title: string, directory: string, gitURL: string): Listr.ListrTask<void> {
+function createTask (title: string, directory: string, gitURL: string): Listr.ListrTask<any> {
   return {
     title,
-    task (): Listr.ListrTaskResult<void> {
+    task (): Listr.ListrTaskResult<any> {
       return new Observable(observer => {
         const serviceDirectory = path.resolve(process.cwd(), 'services', directory)
         pathExists(serviceDirectory)
           .then(function cloneService (doesServiceExist) {
-            console.log('doesServiceExist', doesServiceExist)
             if (doesServiceExist) return
             observer.next('Cloning')
             return exec(`git clone ${gitURL} ${serviceDirectory}`)
