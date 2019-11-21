@@ -60,7 +60,7 @@ export function randomLogColor (): Chalk {
     chalk.red
   ]
 
-  return colors[getRandomInt(3)]
+  return colors[getRandomInt(5)]
 }
 
 function getRandomInt (max: number): number {
