@@ -1,10 +1,10 @@
 import { Command, flags } from '@oclif/command'
-import {exec, getApolloConfig, randomLogColor} from '../../helpers'
+import { exec, getApolloConfig, randomLogColor } from '../../helpers'
 import { ApolloConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 
 export default class ServiceInit extends Command {
-  public static description = 'Pulls down and installs dependencies for all services listed in your apollo.config.js file.'
+  public static description = 'Checks the git status for all services listed in your apollo.config.js file.'
   public static examples = [
     '$ apollo services:status --config dist/apollo.config.js'
   ]
