@@ -2,7 +2,7 @@ import { Command, flags } from '@oclif/command'
 import * as path from 'path'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
-import { getConfigPath, pathExists, isJavascriptProject, exec } from '../../helpers'
+import { getConfigPath, pathExists, isJavascriptProject, exec, cloneRepo } from '../../helpers'
 
 interface ApolloConfig {
   services?: Service[]
@@ -57,10 +57,10 @@ function createTask (title: string, directory: string, gitURL: string): Listr.Li
       return new Observable(observer => {
         const serviceDirectory = path.resolve(process.cwd(), 'services', directory)
         pathExists(serviceDirectory)
-          .then(function cloneService (doesServiceExist) {
+          .then(function cloneService (doesServiceExist: boolean) {
             if (doesServiceExist) return
             observer.next('Cloning')
-            return exec(`git clone ${gitURL} ${serviceDirectory}`)
+            return cloneRepo(gitURL, directory)
           })
           .then(() => observer.next('Installing/Updating Dependencies'))
           .then(() => isJavascriptProject(serviceDirectory))
