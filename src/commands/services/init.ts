@@ -2,17 +2,8 @@ import { Command, flags } from '@oclif/command'
 import * as path from 'path'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
-import { getConfigPath, pathExists, isJavascriptProject, exec, cloneRepo } from '../../helpers'
-
-interface ApolloConfig {
-  services?: Service[]
-}
-
-interface Service {
-  name?: string
-  gitURL?: string
-  directory?: string
-}
+import { pathExists, isJavascriptProject, exec, cloneRepo, getApolloConfig } from '../../helpers'
+import {ApolloConfig, Service} from '../../interfaces/apollo-config'
 
 export default class ServiceInit extends Command {
     public static description = 'Pulls down and installs dependencies for all services listed in your apollo.config.js file.'
@@ -29,38 +20,32 @@ export default class ServiceInit extends Command {
 
     public run (): Promise<any> {
       const { flags } = this.parse(ServiceInit)
-      const apolloConfig: ApolloConfig = require(getConfigPath(flags.config)) // eslint-disable-line @typescript-eslint/no-var-requires
-      if (!apolloConfig.services) {
-        this.error('apollo.config.js is missing a "services" key')
+      let apolloConfig: ApolloConfig
+      try {
+        apolloConfig = getApolloConfig(flags.config)
+      } catch (e) {
+        this.error(e.message)
         return Promise.resolve()
       }
 
-      const tasks = apolloConfig.services.reduce<Listr.ListrTask[]>((accumulator, service) => {
-        if (!service.gitURL || !service.name || !service.directory) {
-          this.error('Every service should have a "gitURL", "name", and "directory"')
-          return accumulator
-        }
-
-        return [...accumulator, createTask(service.name, service.directory, service.gitURL)]
-      }, [])
-
+      const tasks = apolloConfig.services.map<Listr.ListrTask>(createTask)
       const listr = new Listr({ concurrent: true })
       listr.add(tasks)
       return listr.run()
     }
 }
 
-function createTask (title: string, directory: string, gitURL: string): Listr.ListrTask<any> {
+function createTask (service: Service): Listr.ListrTask<any> {
   return {
-    title,
+    title: service.name,
     task (): Listr.ListrTaskResult<any> {
       return new Observable(observer => {
-        const serviceDirectory = path.resolve(process.cwd(), 'services', directory)
+        const serviceDirectory = path.resolve(process.cwd(), 'services', service.directory)
         pathExists(serviceDirectory)
           .then(function cloneService (doesServiceExist: boolean) {
             if (doesServiceExist) return
             observer.next('Cloning')
-            return cloneRepo(gitURL, directory)
+            return cloneRepo(service.gitURL, service.directory)
           })
           .then(() => observer.next('Installing/Updating Dependencies'))
           .then(() => isJavascriptProject(serviceDirectory))
