@@ -33,7 +33,7 @@ export default class ServiceInit extends Command {
         .then((val) => {
           this.log(randomColor(`########################### ${service.name} ###########################`))
           this.log(val.stdout)
-          this.log(randomColor(`########################### End ${service.name} ###########################`))
+          this.log(randomColor(`########################### End ${service.name} ###########################\n`))
         })
         .catch((error) => console.error(error))
     }))
