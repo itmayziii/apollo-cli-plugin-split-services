@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [1.2.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.1.4...v1.2.0) (2019-11-21)
+
+
+### Features
+
+* **services:status:** added a services:status command that runs git status on all services ([84107ee](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/84107ee))
+
+
+
 ## [1.1.4](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.1.3...v1.1.4) (2019-11-13)
 
 
