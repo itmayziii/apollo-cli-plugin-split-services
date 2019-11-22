@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [1.4.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.3.1...v1.4.0) (2019-11-22)
+
+
+### Bug Fixes
+
+* **apolloconfig interface:** switched all use of the old interfaces to the new ones ([61b9c71](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/61b9c71))
+
+
+### Features
+
+* **services:start:** added a services:start command and changed the config interface names ([78a3115](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/78a3115))
+
+
+
 ## [1.3.1](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.3.0...v1.3.1) (2019-11-22)
 
 
