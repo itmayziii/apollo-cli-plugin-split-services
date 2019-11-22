@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as util from 'util'
 import * as childProcess from 'child_process'
 import chalk, { Chalk } from 'chalk'
-import { ApolloConfig, ServiceGatewayConfig } from './interfaces/apollo-config'
+import { ApolloConfig, GatewayConfig } from './interfaces/apollo-config'
 
 export const exec = util.promisify(childProcess.exec)
 export const access = util.promisify(fs.access)
@@ -35,20 +35,20 @@ export function cloneRepo (gitURL: string, directory?: string): Promise<{ stdout
   return exec(command)
 }
 
-export function getApolloConfig (configPath?: string): ApolloConfig<ServiceGatewayConfig> {
-  const apolloConfig: Partial<ApolloConfig<ServiceGatewayConfig>> = require(getConfigPath(configPath)) // eslint-disable-line
+export function getApolloConfig (configPath?: string): ApolloConfig<GatewayConfig> {
+  const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(configPath)) // eslint-disable-line
   // @typescript-eslint/no-var-requires
-  if (!apolloConfig.services) {
-    throw new Error('apollo.config.js is missing a "services" key')
+  if (!apolloConfig.splitServices || !apolloConfig.splitServices.services) {
+    throw new Error('apollo.config.js is missing a "splitServices.services" key')
   }
 
-  apolloConfig.services.map(function verifyApolloServiceConfig (service) {
+  apolloConfig.splitServices.services.map(function verifyApolloServiceConfig (service) {
     if (!service.gitURL || !service.name || !service.directory) {
       throw new Error('apollo.config.js is missing a "services" key')
     }
   })
 
-  return apolloConfig as ApolloConfig<ServiceGatewayConfig>
+  return apolloConfig as ApolloConfig<GatewayConfig>
 }
 
 export function randomLogColor (): Chalk {
