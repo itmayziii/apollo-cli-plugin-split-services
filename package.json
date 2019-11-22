@@ -2,7 +2,7 @@
   "name": "apollo-cli-plugin-split-services",
   "version": "1.3.0",
   "description": "Oclif plugin extending Apollo's CLI to make working with multiple services in different packages easier.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npm run clean && tsc --project tsconfig.json && oclif-dev manifest",
     "clean": "rm -rf dist/*",
