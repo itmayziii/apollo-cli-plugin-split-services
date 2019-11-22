@@ -36,15 +36,15 @@ export function cloneRepo (gitURL: string, directory?: string): Promise<{ stdout
 }
 
 export function getApolloConfig (configPath?: string): ApolloConfig<GatewayConfig> {
-  const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(configPath)) // eslint-disable-line
-  // @typescript-eslint/no-var-requires
-  if (!apolloConfig.splitServices || !apolloConfig.splitServices.services) {
-    throw new Error('apollo.config.js is missing a "splitServices.services" key')
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(configPath))
+  if (!apolloConfig.splitServices) {
+    throw new Error('apollo.config.js is missing a "splitServices" key')
   }
 
   apolloConfig.splitServices.services.map(function verifyApolloServiceConfig (service) {
-    if (!service.gitURL || !service.name || !service.directory) {
-      throw new Error('apollo.config.js is missing a "services" key')
+    if (!service.gitURL || !service.name || !service.directory || !service.apolloConfigPath) {
+      throw new Error('apollo.config.js is missing a "gitURL", "name", "directory", "apolloConfigPath" property.')
     }
   })
 
