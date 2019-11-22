@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [1.3.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.2.2...v1.3.0) (2019-11-22)
+
+
+### Features
+
+* **index.ts:** barrel file for package exports, this library will export interfaces for users ([457707f](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/457707f))
+
+
+
 ## [1.2.2](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.2.1...v1.2.2) (2019-11-21)
 
 
