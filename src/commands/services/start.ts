@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
-import {exec, getApolloConfig, isJavascriptProject, randomLogColor} from '../../helpers'
-import { ApolloConfig } from '../../interfaces/apollo-config'
+import { getApolloConfig, isJavascriptProject } from '../../helpers'
+import { ApolloConfig, ServiceGatewayConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 import * as concurrently from 'concurrently'
 
@@ -20,7 +20,7 @@ export default class ServiceStart extends Command {
 
   public run (): Promise<any> {
     const { flags } = this.parse(ServiceStart)
-    let apolloConfig: ApolloConfig
+    let apolloConfig: ApolloConfig<ServiceGatewayConfig>
     try {
       apolloConfig = getApolloConfig(flags.config)
     } catch (e) {

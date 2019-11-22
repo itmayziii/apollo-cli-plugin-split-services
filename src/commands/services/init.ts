@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
 import { pathExists, isJavascriptProject, exec, cloneRepo, getApolloConfig } from '../../helpers'
-import { ApolloConfig, Service } from '../../interfaces/apollo-config'
+import { ApolloConfig, ServiceGatewayConfig } from '../../interfaces/apollo-config'
 
 export default class ServiceInit extends Command {
     public static description = 'Pulls down and installs dependencies for all services listed in your apollo.config.js file.'
@@ -20,7 +20,7 @@ export default class ServiceInit extends Command {
 
     public run (): Promise<any> {
       const { flags } = this.parse(ServiceInit)
-      let apolloConfig: ApolloConfig
+      let apolloConfig: ApolloConfig<ServiceGatewayConfig>
       try {
         apolloConfig = getApolloConfig(flags.config)
       } catch (e) {
@@ -35,7 +35,7 @@ export default class ServiceInit extends Command {
     }
 }
 
-function createTask (service: Service): Listr.ListrTask<any> {
+function createTask (service: ServiceGatewayConfig): Listr.ListrTask<any> {
   return {
     title: service.name,
     task (): Listr.ListrTaskResult<any> {

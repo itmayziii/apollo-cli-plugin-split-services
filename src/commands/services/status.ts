@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import { exec, getApolloConfig, randomLogColor } from '../../helpers'
-import { ApolloConfig } from '../../interfaces/apollo-config'
+import { ApolloConfig, ServiceGatewayConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 
 export default class ServiceInit extends Command {
@@ -18,7 +18,7 @@ export default class ServiceInit extends Command {
 
   public run (): Promise<any> {
     const { flags } = this.parse(ServiceInit)
-    let apolloConfig: ApolloConfig
+    let apolloConfig: ApolloConfig<ServiceGatewayConfig>
     try {
       apolloConfig = getApolloConfig(flags.config)
     } catch (e) {
