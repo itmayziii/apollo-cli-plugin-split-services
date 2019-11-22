@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command'
 import { exec, getApolloConfig, randomLogColor } from '../../helpers'
-import { ApolloConfig, ServiceGatewayConfig } from '../../interfaces/apollo-config'
+import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 
 export default class ServiceInit extends Command {
@@ -18,7 +18,7 @@ export default class ServiceInit extends Command {
 
   public run (): Promise<any> {
     const { flags } = this.parse(ServiceInit)
-    let apolloConfig: ApolloConfig<ServiceGatewayConfig>
+    let apolloConfig: ApolloConfig<GatewayConfig>
     try {
       apolloConfig = getApolloConfig(flags.config)
     } catch (e) {
@@ -26,7 +26,7 @@ export default class ServiceInit extends Command {
       return Promise.resolve()
     }
 
-    return Promise.all(apolloConfig.services.map<Promise<any>>(service => {
+    return Promise.all(apolloConfig.splitServices.services.map<Promise<any>>(service => {
       const serviceDirectory = path.resolve(process.cwd(), 'services', service.directory)
       const randomColor = randomLogColor()
       return exec('git status', { cwd: serviceDirectory })

@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
 import { pathExists, isJavascriptProject, exec, cloneRepo, getApolloConfig } from '../../helpers'
-import { ApolloConfig, ServiceGatewayConfig } from '../../interfaces/apollo-config'
+import { ApolloConfig, GatewayConfig, SplitService } from '../../interfaces/apollo-config'
 
 export default class ServiceInit extends Command {
     public static description = 'Pulls down and installs dependencies for all services listed in your apollo.config.js file.'
@@ -20,7 +20,7 @@ export default class ServiceInit extends Command {
 
     public run (): Promise<any> {
       const { flags } = this.parse(ServiceInit)
-      let apolloConfig: ApolloConfig<ServiceGatewayConfig>
+      let apolloConfig: ApolloConfig<GatewayConfig>
       try {
         apolloConfig = getApolloConfig(flags.config)
       } catch (e) {
@@ -28,14 +28,14 @@ export default class ServiceInit extends Command {
         return Promise.resolve()
       }
 
-      const tasks = apolloConfig.services.map<Listr.ListrTask>(createTask)
+      const tasks = apolloConfig.splitServices.services.map<Listr.ListrTask>(createTask)
       const listr = new Listr({ concurrent: true })
       listr.add(tasks)
       return listr.run()
     }
 }
 
-function createTask (service: ServiceGatewayConfig): Listr.ListrTask<any> {
+function createTask (service: SplitService): Listr.ListrTask<any> {
   return {
     title: service.name,
     task (): Listr.ListrTaskResult<any> {

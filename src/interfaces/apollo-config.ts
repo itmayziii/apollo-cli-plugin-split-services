@@ -1,8 +1,12 @@
-export interface ApolloConfig<T extends ServiceGatewayConfig | ServiceConfig> {
-  services: T[]
+export interface ApolloConfig<T extends GatewayConfig | ServiceConfig> {
+  splitServices: T
 }
 
-export interface ServiceGatewayConfig {
+export interface GatewayConfig {
+  services: SplitService[]
+}
+
+export interface SplitService {
   name: string
   gitURL: string
   directory: string
