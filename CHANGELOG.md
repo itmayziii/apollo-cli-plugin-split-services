@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.1](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.5.0...v1.5.1) (2019-11-22)
+
+
+### Bug Fixes
+
+* **helpers:** we were checking for incorrect properties in the config ([0fd06f4](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/0fd06f4))
+
+
+
 # [1.5.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.4.0...v1.5.0) (2019-11-22)
 
 
