@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import { getApolloConfig, isJavascriptProject } from '../../helpers'
+import { access, getApolloConfig, isJavascriptProject } from '../../helpers'
 import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 import * as concurrently from 'concurrently'
@@ -22,7 +22,7 @@ export default class ServiceStart extends Command {
     const { flags } = this.parse(ServiceStart)
     let apolloConfig: ApolloConfig<GatewayConfig>
     try {
-      apolloConfig = getApolloConfig(flags.config)
+      apolloConfig = getApolloConfig(path.resolve, process.cwd(), flags.config)
     } catch (e) {
       this.error(e.message)
       return Promise.resolve()
@@ -30,7 +30,7 @@ export default class ServiceStart extends Command {
 
     return Promise.all(apolloConfig.splitServices.services.reduce<Promise<concurrently.CommandObj>[]>((accumulator, service) => {
       const serviceDirectory = path.resolve(process.cwd(), 'services', service.directory)
-      const blah = isJavascriptProject(serviceDirectory)
+      const blah = isJavascriptProject(access, path.resolve, serviceDirectory)
         .then(isJavascriptProject => {
           if (!isJavascriptProject) {
             this.error(`Unsupported Project type for service: ${service.name}`)

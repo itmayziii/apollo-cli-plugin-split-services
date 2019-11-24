@@ -20,7 +20,7 @@ export default class ServiceInit extends Command {
     const { flags } = this.parse(ServiceInit)
     let apolloConfig: ApolloConfig<GatewayConfig>
     try {
-      apolloConfig = getApolloConfig(flags.config)
+      apolloConfig = getApolloConfig(path.resolve, process.cwd(), flags.config)
     } catch (e) {
       this.error(e.message)
       return Promise.resolve()
