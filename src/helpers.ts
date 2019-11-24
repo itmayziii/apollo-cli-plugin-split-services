@@ -2,8 +2,7 @@ import * as fs from 'fs'
 import * as util from 'util'
 import * as childProcess from 'child_process'
 import chalk, { Chalk } from 'chalk'
-import { ApolloConfig, GatewayConfig } from './interfaces/apollo-config'
-import { ChildProcess } from 'child_process'
+import { ApolloConfig, GatewayConfig, ServiceConfig } from './interfaces/apollo-config'
 
 export const exec = util.promisify(childProcess.exec)
 export const access = util.promisify(fs.access)
@@ -89,15 +88,27 @@ export function isJavascriptProject (accessFileFn: AccessFileFn, pathResolveFn: 
  */
 export function cloneRepo (execFn: ExecFn, gitURL: string, directory?: string): Promise<{ stdout: string, stderr: string }> {
   const command = directory ? `git clone ${gitURL} ${directory}` : `git clone ${gitURL}`
-  console.log('execFn command', command)
   return execFn(command)
 }
 
-export function getApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<GatewayConfig> {
+/**
+ * Gets the apollo.config.js file meant for a gateway and verifies it is valid.
+ *
+ * @param pathResolveFn - {@link PathResolveFn}
+ * @param cwd - The current working directory.
+ * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
+ * @returns The apollo configuration specific to the gateway or one of the split services.
+ * @throws Error - When the apollo.config.js file does not exist or is invalid.
+ */
+export function getGatewayApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<GatewayConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
   if (!apolloConfig.splitServices) {
     throw new Error('apollo.config.js is missing a "splitServices" key')
+  }
+
+  if (!apolloConfig.splitServices.services) {
+    throw new Error('apollo.config.js is missing a "splitServices.services" key')
   }
 
   apolloConfig.splitServices.services.map(function verifyApolloServiceConfig (service) {
@@ -109,6 +120,33 @@ export function getApolloConfig (pathResolveFn: PathResolveFn, cwd: string, conf
   return apolloConfig as ApolloConfig<GatewayConfig>
 }
 
+/**
+ * Gets the apollo.config.js file meant for a service and verifies it is valid.
+ *
+ * @param pathResolveFn - {@link PathResolveFn}
+ * @param cwd - The current working directory.
+ * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
+ * @returns The apollo configuration specific to the gateway or one of the split services.
+ */
+export function getServiceApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<ServiceConfig> {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const apolloConfig: Partial<ApolloConfig<ServiceConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
+  if (!apolloConfig.splitServices) {
+    throw new Error('apollo.config.js is missing a "splitServices" key')
+  }
+
+  if (!apolloConfig.splitServices.url) {
+    throw new Error('apollo.config.js is missing a "splitServices.url" key')
+  }
+
+  return apolloConfig as ApolloConfig<ServiceConfig>
+}
+
+/**
+ * Returns a random color for logging.
+ *
+ * @returns A random {@link Chalk} color.
+ */
 export function randomLogColor (): Chalk {
   const colors = [
     chalk.blue,

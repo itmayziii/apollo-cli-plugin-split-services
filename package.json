@@ -10,7 +10,7 @@
     "clean": "rm -rf dist/*",
     "lint": "eslint --config .eslintrc.js --ext .ts ./src",
     "lint:fix": "eslint --fix --config .eslintrc.js --ext .ts ./src",
-    "test": "npm run build:test && nyc --all --include=\"dist/**/*.js\" --exclude-after-remap=false --exclude=\"dist/**/*.spec.js\"  jasmine --config=jasmine.json",
+    "test": "npm run build:test && nyc jasmine --config=jasmine.json",
     "package": "npm run lint && npm run build && standard-version && oclif-dev manifest",
     "tar": "npm run build && npm pack"
   },
@@ -61,5 +61,14 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "nyc": {
+    "all": true,
+    "excludeAfterRemap": false,
+    "include": "dist/**/*.js",
+    "exclude": [
+      "dist/**/*.spec.js",
+      "dist/test-configs/**/*"
+    ]
   }
 }

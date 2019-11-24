@@ -1,4 +1,5 @@
-import { cloneRepo, getConfigPath, isJavascriptProject, pathExists } from './helpers'
+import { cloneRepo, getConfigPath, getGatewayApolloConfig, isJavascriptProject, pathExists, randomLogColor } from './helpers'
+import * as path from 'path'
 import * as fs from 'fs'
 
 describe('getConfigPath', () => {
@@ -92,5 +93,27 @@ describe('cloneRepo', () => {
         expect(actual.stdout).toBe(expectedStdout)
         expect(actual.stderr).toBe(expectedStderr)
       })
+  })
+})
+
+describe('randomLogColor', () => {
+  // TODO add these tests, unfortunately I couldn't figure out how to compare these chalk functions. chalk.blue === chalk.blue was
+  //  always false
+  xit('should return a random color for logging', () => {})
+})
+
+describe('getGatewayApolloConfig', () => {
+  it('should throw an error if the config file does not exist', () => {
+    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser')).toThrow()
+  })
+
+  it('should throw an error if the config file is missing a "splitServices" key', () => {
+    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-apollo.config'))
+      .toThrowError('apollo.config.js is missing a "splitServices" key')
+  })
+
+  it('should throw an error if the config file is missing a "splitServices.services" key', () => {
+    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-apollo.config'))
+      .toThrowError('apollo.config.js is missing a "splitServices.services" key')
   })
 })
