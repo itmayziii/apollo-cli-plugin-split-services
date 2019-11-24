@@ -1,4 +1,4 @@
-import { getConfigPath, pathExists } from './helpers'
+import { cloneRepo, getConfigPath, isJavascriptProject, pathExists } from './helpers'
 import * as fs from 'fs'
 
 describe('getConfigPath', () => {
@@ -37,8 +37,60 @@ describe('pathExists', () => {
   it('should return false if the file does not exist or is not accessible', () => {
     const accessFileFnSpy = jasmine.createSpy('access').withArgs('/giraffes', fs.constants.F_OK).and.returnValue(Promise.reject(new Error('no file')))
     return pathExists(accessFileFnSpy, '/giraffes')
-      .then((actual) => {
+      .then(actual => {
         expect(actual).toBeFalse()
+      })
+  })
+})
+
+describe('isJavascriptProject', () => {
+  it('should return true if the project has a package.json file in its root', () => {
+    const accessFileFnSpy = jasmine.createSpy('access').withArgs('/apples/package.json', fs.constants.F_OK).and.returnValue(Promise.resolve())
+    const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
+    return isJavascriptProject(accessFileFnSpy, pathResolveFnSpy, '/apples')
+      .then(actual => {
+        expect(actual).toBeTrue()
+      })
+  })
+
+  it('should return false if the project does not have a package.json in its root', () => {
+    const accessFileFnSpy = jasmine.createSpy('access').withArgs('/apples/package.json', fs.constants.F_OK).and.returnValue(Promise.reject(new Error('no file')))
+    const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
+    return isJavascriptProject(accessFileFnSpy, pathResolveFnSpy, '/apples')
+      .then(actual => {
+        expect(actual).toBeFalse()
+      })
+  })
+})
+
+describe('cloneRepo', () => {
+  it('should run a git clone command with the git URL if no directory is provided', () => {
+    const execFnSpy = jasmine.createSpy('exec').withArgs('git clone https://github.com/BudgetDumpster/giraffes')
+      .and.returnValue(Promise.resolve({
+        stdout: 'Successfully cloned repo',
+        stderr: ''
+      }))
+    return cloneRepo(execFnSpy, 'https://github.com/BudgetDumpster/giraffes')
+      .then(actual => {
+        const expectedStdout = 'Successfully cloned repo'
+        const expectedStderr = ''
+        expect(actual.stdout).toBe(expectedStdout)
+        expect(actual.stderr).toBe(expectedStderr)
+      })
+  })
+
+  it('should run a git clone command with the git URL and directory', () => {
+    const execFnSpy = jasmine.createSpy('exec').withArgs('git clone https://github.com/BudgetDumpster/giraffes bd-giraffes')
+      .and.returnValue(Promise.resolve({
+        stdout: 'Successfully cloned repo',
+        stderr: ''
+      }))
+    return cloneRepo(execFnSpy, 'https://github.com/BudgetDumpster/giraffes', 'bd-giraffes')
+      .then(actual => {
+        const expectedStdout = 'Successfully cloned repo'
+        const expectedStderr = ''
+        expect(actual.stdout).toBe(expectedStdout)
+        expect(actual.stderr).toBe(expectedStderr)
       })
   })
 })

@@ -3,6 +3,7 @@ import * as util from 'util'
 import * as childProcess from 'child_process'
 import chalk, { Chalk } from 'chalk'
 import { ApolloConfig, GatewayConfig } from './interfaces/apollo-config'
+import { ChildProcess } from 'child_process'
 
 export const exec = util.promisify(childProcess.exec)
 export const access = util.promisify(fs.access)
@@ -22,17 +23,24 @@ interface AccessFileFn {
 }
 
 /**
+ * Run a command with space separated arguments.
+ */
+interface ExecFn {
+  (command: string): Promise<{ stdout: string, stderr: string }>
+}
+
+/**
  * Gets the path of the apollo.config.js file.
  *
  * Gives the apollo.config.js file in the current working directory if the `configPath` is not provided.
  * If a `configPath` is provided and it is absolute it will simply return the `configPath` as it is assumed the user knew exactly where
  * it was already.
- * If a `configPath` is provided and it is relative it will return the `configPath` relative to the `cwd`
+ * If a `configPath` is provided and it is relative it will return the `configPath` relative to the `cwd`.
  *
  * @param pathResolveFn - {@link PathResolveFn}
- * @param cwd - The current working directory
- * @param configPath - Path to the apollo.config.js file
- * @returns The absolute path to the apollo.config.js file
+ * @param cwd - The current working directory.
+ * @param configPath - Path to the apollo.config.js file.
+ * @returns The absolute path to the apollo.config.js file.
  */
 export function getConfigPath (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): string {
   if (!configPath) {
@@ -59,13 +67,30 @@ export function pathExists (accessFileFn: AccessFileFn, aPath: string): Promise<
     .catch(() => false)
 }
 
+/**
+ * Checks if a directory is a javascript project.
+ *
+ * @param accessFileFn - {@link AccessFileFn}
+ * @param pathResolveFn - {@link PathResolveFn}
+ * @param directory - path to directory to check if it is a javascript project.
+ * @returns Whether or not the `directory` is a javascript project.
+ */
 export function isJavascriptProject (accessFileFn: AccessFileFn, pathResolveFn: PathResolveFn, directory: string): Promise<boolean> {
   return pathExists(accessFileFn, pathResolveFn(directory, 'package.json'))
 }
 
-export function cloneRepo (gitURL: string, directory?: string): Promise<{ stdout: string, stderr: string }> {
-  const command = directory ? `git clone ${gitURL}` : `git clone ${gitURL} ${directory}`
-  return exec(command)
+/**
+ * Clones a repository from a URL.
+ *
+ * @param execFn - {@link ExecFn}
+ * @param gitURL - URL of the git repo.
+ * @param directory - Optionally name the directory the repo should be cloned to.
+ * @returns The output of stdout and stderr from the child process.
+ */
+export function cloneRepo (execFn: ExecFn, gitURL: string, directory?: string): Promise<{ stdout: string, stderr: string }> {
+  const command = directory ? `git clone ${gitURL} ${directory}` : `git clone ${gitURL}`
+  console.log('execFn command', command)
+  return execFn(command)
 }
 
 export function getApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<GatewayConfig> {

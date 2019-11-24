@@ -45,7 +45,7 @@ function createTask (service: SplitService): Listr.ListrTask<any> {
           .then(function cloneService (doesServiceExist: boolean) {
             if (doesServiceExist) return
             observer.next('Cloning')
-            return cloneRepo(service.gitURL, service.directory)
+            return cloneRepo(exec, service.gitURL, service.directory)
           })
           .then(() => observer.next('Installing/Updating Dependencies'))
           .then(() => isJavascriptProject(access, path.resolve, serviceDirectory))
