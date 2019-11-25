@@ -10,7 +10,7 @@ export interface SplitService {
   name: string
   gitURL: string
   directory: string
-  apolloConfigPath: string
+  apolloConfigPath?: string
 }
 
 export interface ServiceConfig {

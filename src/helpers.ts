@@ -112,8 +112,8 @@ export function getGatewayApolloConfig (pathResolveFn: PathResolveFn, cwd: strin
   }
 
   apolloConfig.splitServices.services.map(function verifyApolloServiceConfig (service) {
-    if (!service.gitURL || !service.name || !service.directory || !service.apolloConfigPath) {
-      throw new Error('apollo.config.js is missing a "gitURL", "name", "directory", "apolloConfigPath" property.')
+    if (!service.gitURL || !service.name || !service.directory) {
+      throw new Error('apollo.config.js is missing a "gitURL", "name", or "directory" property.')
     }
   })
 

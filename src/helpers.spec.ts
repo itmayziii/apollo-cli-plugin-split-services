@@ -1,4 +1,12 @@
-import { cloneRepo, getConfigPath, getGatewayApolloConfig, isJavascriptProject, pathExists, randomLogColor } from './helpers'
+import {
+  cloneRepo,
+  getConfigPath,
+  getGatewayApolloConfig,
+  getServiceApolloConfig,
+  isJavascriptProject,
+  pathExists,
+  randomLogColor
+} from './helpers'
 import * as path from 'path'
 import * as fs from 'fs'
 
@@ -104,16 +112,49 @@ describe('randomLogColor', () => {
 
 describe('getGatewayApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser')).toThrow()
+    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser/fakePath')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-apollo.config'))
+    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices" key')
   })
 
   it('should throw an error if the config file is missing a "splitServices.services" key', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-apollo.config'))
+    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices.services" key')
+  })
+
+  it('should throw an error if the services are missing any of their required properties', () => {
+    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-props-apollo.config'))
+      .toThrowError('apollo.config.js is missing a "gitURL", "name", or "directory" property.')
+  })
+
+  it('should return an apollo config if the file exists and is valid', () => {
+    const actual = getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-valid-apollo.config')
+    expect(actual.splitServices.services[0].name).toBe('Orders')
+    expect(actual.splitServices.services[0].gitURL).toBe('https://github.com/BudgetDumpster/orders')
+    expect(actual.splitServices.services[0].directory).toBe('orders')
+  })
+})
+
+describe('getServiceApolloConfig', () => {
+  it('should throw an error if the config file does not exist', () => {
+    expect(() => getServiceApolloConfig(path.resolve, '/Users/notARealUser/fakePath')).toThrow()
+  })
+
+  it('should throw an error if the config file is missing a "splitServices" key', () => {
+    expect(() => getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
+      .toThrowError('apollo.config.js is missing a "splitServices" key')
+  })
+
+  it('should throw an error if the config file is missing a "splitServices.url" key', () => {
+    expect(() => getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
+      .toThrowError('apollo.config.js is missing a "splitServices.url" key')
+  })
+
+  it('should return an apollo config if the file exists and is valid', () => {
+    const actual = getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/service-valid-apollo.config')
+    expect(actual.splitServices.url).toBe('http://127.0.0.1:4200/graphql')
   })
 })
