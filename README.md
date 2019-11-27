@@ -26,7 +26,7 @@ course you will also need to include this project as a dependency if you do so `
 
 ## `apollo services:init`
 
-Pulls down and installs dependencies for all services listed in your apollo.config.js file.
+Clones and installs dependencies for all services listed in your apollo.config.js file.
 
 ```
 USAGE
