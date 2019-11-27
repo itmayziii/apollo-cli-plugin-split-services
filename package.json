@@ -55,7 +55,8 @@
     "oclif.manifest.json"
   ],
   "oclif": {
-    "commands": "./dist/commands"
+    "commands": "./dist/commands",
+    "repositoryPrefix": "apollo"
   },
   "config": {
     "commitizen": {

@@ -14,7 +14,7 @@ describe('getConfigPath', () => {
   it('should return the apollo.config.js file from the current working directory if a config path is not provided',
     () => {
       const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'apollo.config.js').and.returnValue('/apples/apollo.config.js')
-      const actual = getConfigPath(pathResolveFnSpy, '/apples')
+      const actual = getConfigPath(pathResolveFnSpy, '/apples', 'apollo.config.js')
       const expected = '/apples/apollo.config.js'
       expect(actual).toBe(expected)
     })
@@ -112,7 +112,7 @@ describe('randomLogColor', () => {
 
 describe('getGatewayApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser/fakePath')).toThrow()
+    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {
@@ -140,7 +140,7 @@ describe('getGatewayApolloConfig', () => {
 
 describe('getServiceApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getServiceApolloConfig(path.resolve, '/Users/notARealUser/fakePath')).toThrow()
+    expect(() => getServiceApolloConfig(path.resolve, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {

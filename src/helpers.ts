@@ -3,6 +3,8 @@ import * as util from 'util'
 import * as childProcess from 'child_process'
 import chalk, { Chalk } from 'chalk'
 import { ApolloConfig, GatewayConfig, ServiceConfig } from './interfaces/apollo-config'
+import * as Parser from '@oclif/parser'
+import { Command } from '@oclif/command'
 
 export const exec = util.promisify(childProcess.exec)
 export const access = util.promisify(fs.access)
@@ -10,28 +12,42 @@ export const access = util.promisify(fs.access)
 /**
  * Resolves an absolute path out of multiple path segments.
  */
-interface PathResolveFn {
+export interface PathResolveFn {
   (...pathSegments: string[]): string
 }
 
 /**
  * Asynchronously tests a user's permissions for the file specified by path.
  */
-interface AccessFileFn {
+export interface AccessFileFn {
   (path: string, mode: number): Promise<void>
 }
 
 /**
  * Run a command with space separated arguments.
  */
-interface ExecFn {
-  (command: string): Promise<{ stdout: string, stderr: string }>
+export interface ExecFn {
+  (command: string, options?: childProcess.ExecOptions): Promise<{ stdout: string, stderr: string }>
+}
+
+/**
+ * Omits the first args from a function, useful for HOF that provide a special first arg.
+ */
+type OmitFirstThreeArgs<F> = F extends (x: any, y: any, z: any, ...args: infer P) => infer R ? (...args: P) => R : never;
+
+/**
+ * Commands usually available through oclif to log to the console or exit the CLI.
+ */
+export interface CommandReporter {
+  exit: typeof Command.prototype.exit
+  warn: typeof Command.prototype.warn
+  error: typeof Command.prototype.error
+  log: typeof Command.prototype.log
 }
 
 /**
  * Gets the path of the apollo.config.js file.
  *
- * Gives the apollo.config.js file in the current working directory if the `configPath` is not provided.
  * If a `configPath` is provided and it is absolute it will simply return the `configPath` as it is assumed the user knew exactly where
  * it was already.
  * If a `configPath` is provided and it is relative it will return the `configPath` relative to the `cwd`.
@@ -41,11 +57,7 @@ interface ExecFn {
  * @param configPath - Path to the apollo.config.js file.
  * @returns The absolute path to the apollo.config.js file.
  */
-export function getConfigPath (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): string {
-  if (!configPath) {
-    return pathResolveFn(cwd, 'apollo.config.js')
-  }
-
+export function getConfigPath (pathResolveFn: PathResolveFn, cwd: string, configPath: string): string {
   if (configPath.startsWith('/')) {
     return configPath
   }
@@ -100,7 +112,7 @@ export function cloneRepo (execFn: ExecFn, gitURL: string, directory?: string): 
  * @returns The apollo configuration specific to the gateway or one of the split services.
  * @throws Error - When the apollo.config.js file does not exist or is invalid.
  */
-export function getGatewayApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<GatewayConfig> {
+export function getGatewayApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath: string): ApolloConfig<GatewayConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
   if (!apolloConfig.splitServices) {
@@ -128,7 +140,7 @@ export function getGatewayApolloConfig (pathResolveFn: PathResolveFn, cwd: strin
  * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
  * @returns The apollo configuration specific to the gateway or one of the split services.
  */
-export function getServiceApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath?: string): ApolloConfig<ServiceConfig> {
+export function getServiceApolloConfig (pathResolveFn: PathResolveFn, cwd: string, configPath: string): ApolloConfig<ServiceConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apolloConfig: Partial<ApolloConfig<ServiceConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
   if (!apolloConfig.splitServices) {
@@ -140,6 +152,33 @@ export function getServiceApolloConfig (pathResolveFn: PathResolveFn, cwd: strin
   }
 
   return apolloConfig as ApolloConfig<ServiceConfig>
+}
+
+/**
+ * Sets up common data needed by command functions like the apolloConfig and an object to log to the console with through the CLI.
+ * The main driver for this function is allow us to easily use functions instead of Oclifs classes. It is impossible to pass
+ * dependencies to those Oclif classes therefore making testing a nightmare using global dependency rewiring like proxyrequire or rewire.
+ *
+ * @param commandInstance - Instance of an {@link Command}
+ * @param parsedOutput - Output of calling this.parse(Command) from an Oclif command.
+ * @param fn - Function that common config should be passed to and will take over the actual work of running the command logic.
+ * @param pathResolver - {@link PathResolveFn}
+ * @param cwd - The current working directory.
+ */
+export function withCommonGatewaySetup<
+    I extends Command,
+    T extends Parser.Output<any, any>,
+    F extends (apolloConfig: ApolloConfig<GatewayConfig>, reporter: CommandReporter, parsedOutput: T, ...args: any[]) => Promise<any>
+  >
+(commandInstance: I, parsedOutput: T, fn: F, pathResolver: PathResolveFn, cwd: string): (...funcArgs: Parameters<OmitFirstThreeArgs<F>>) => Promise<any> {
+  const apolloConfig = getGatewayApolloConfig(pathResolver, cwd, parsedOutput.flags.config)
+  const reporter: CommandReporter = {
+    exit: commandInstance.exit,
+    warn: commandInstance.warn,
+    error: commandInstance.error,
+    log: commandInstance.log
+  }
+  return (...args: Parameters<OmitFirstThreeArgs<F>>): Promise<any> => fn(apolloConfig, reporter, parsedOutput, ...args)
 }
 
 /**
@@ -160,6 +199,12 @@ export function randomLogColor (): Chalk {
   return colors[getRandomInt(6)]
 }
 
+/**
+ * Get a random integer.
+ *
+ * @param max - Max integer value to return up to but not including this number.
+ * @return A random integer.
+ */
 function getRandomInt (max: number): number {
   return Math.floor(Math.random() * Math.floor(max))
 }

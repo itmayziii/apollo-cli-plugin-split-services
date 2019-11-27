@@ -3,7 +3,7 @@ import { exec, getGatewayApolloConfig, randomLogColor } from '../../helpers'
 import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 import * as path from 'path'
 
-export default class ServiceInit extends Command {
+export default class ServicesInit extends Command {
   public static description = 'Checks the git status for all services listed in your apollo.config.js file.'
   public static examples = [
     '$ apollo services:status --config dist/apollo.config.js'
@@ -11,13 +11,13 @@ export default class ServiceInit extends Command {
 
   public static flags = {
     help: flags.help({ char: 'h' }),
-    config: flags.string({ char: 'c', description: 'Path to your Apollo config file' })
+    config: flags.string({ char: 'c', description: 'Path to your Apollo config file.', default: 'apollo.config.js' })
   }
 
-  public static args = [{ name: 'file' }]
+  public static args = []
 
   public run (): Promise<any> {
-    const { flags } = this.parse(ServiceInit)
+    const { flags } = this.parse(ServicesInit)
     let apolloConfig: ApolloConfig<GatewayConfig>
     try {
       apolloConfig = getGatewayApolloConfig(path.resolve, process.cwd(), flags.config)
