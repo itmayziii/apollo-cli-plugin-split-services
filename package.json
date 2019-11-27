@@ -11,7 +11,7 @@
     "lint": "eslint --config .eslintrc.js --ext .ts ./src",
     "lint:fix": "eslint --fix --config .eslintrc.js --ext .ts ./src",
     "test": "npm run build:test && nyc jasmine --config=jasmine.json",
-    "package": "npm run lint && npm run build && standard-version && oclif-dev manifest",
+    "package": "npm run lint && npm run test && npm run build && standard-version && oclif-dev manifest",
     "tar": "npm run build && npm pack"
   },
   "author": "Tommy May III <tommymay37@gmail.com>",
@@ -55,7 +55,8 @@
     "oclif.manifest.json"
   ],
   "oclif": {
-    "commands": "./dist/commands"
+    "commands": "./dist/commands",
+    "repositoryPrefix": "apollo"
   },
   "config": {
     "commitizen": {
