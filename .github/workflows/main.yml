@@ -1,0 +1,21 @@
+name: Verify Pull Request
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['10', '12']
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with: 
+        node-version: ${{ matrix.node }}
+    - run: |
+        npm ci
+        npm run test
+        
