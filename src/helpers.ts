@@ -5,7 +5,7 @@ import chalk, { Chalk } from 'chalk'
 import { ApolloConfig, GatewayConfig, ServiceConfig } from './interfaces/apollo-config'
 import * as Parser from '@oclif/parser'
 import { Command } from '@oclif/command'
-import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve } from './interfaces/helpers'
+import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve, RandomLogColor } from './interfaces/helpers'
 import { CommandReporter } from './interfaces/command-reporter'
 
 export const exec = util.promisify(childProcess.exec)
@@ -134,7 +134,7 @@ export function withCommonGatewaySetup<
  *
  * @returns A random {@link Chalk} color.
  */
-export function randomLogColor (): Chalk {
+export const randomLogColor: RandomLogColor = function randomLogColor (): Chalk {
   const colors = [
     chalk.blue,
     chalk.green,

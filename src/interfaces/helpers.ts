@@ -1,5 +1,6 @@
 import * as path from 'path'
 import { access, exec } from '../helpers'
+import { Chalk } from 'chalk'
 
 export type PathResolve = typeof path.resolve
 export type AccessFile = typeof access
@@ -41,4 +42,14 @@ export interface CloneRepo {
    * @returns The output of stdout and stderr from the child process.
    */
   (exec: Exec, gitURL: string, directory?: string): Promise<{ stdout: string, stderr: string }>
+}
+
+/**
+ * Returns a random color for logging.
+ */
+export interface RandomLogColor {
+  /**
+   * @returns A random color for logging.
+   */
+  (): Chalk
 }

@@ -29,8 +29,9 @@ export default class ServicesInit extends Command {
           cloneRepo,
           cwd
         )
-      } catch (e) {
-        this.error(e.message, { exit: 1 })
+          .catch(error => this.error(error, { exit: 1 }))
+      } catch (error) {
+        this.error(error, { exit: 1 })
       }
     }
 }

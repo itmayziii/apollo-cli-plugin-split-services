@@ -1,5 +1,5 @@
 import { servicesStart } from './start'
-import { ApolloConfig, GatewayConfig } from '../..'
+import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 
 describe('servicesStart', () => {
   let apolloConfig: ApolloConfig<GatewayConfig>

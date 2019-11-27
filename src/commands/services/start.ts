@@ -29,8 +29,9 @@ export default class ServicesStart extends Command {
         concurrently,
         cwd
       )
+        .catch(error => this.error(error, { exit: 1 }))
     } catch (e) {
-      this.error(e.message, { exit: 1 })
+      this.error(e, { exit: 1 })
     }
   }
 }
