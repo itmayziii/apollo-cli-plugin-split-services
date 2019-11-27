@@ -2,8 +2,8 @@ import * as Parser from '@oclif/parser'
 import { ApolloConfig, GatewayConfig, SplitService } from '../../interfaces/apollo-config'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
-import { CommandReporter } from '../../helpers'
 import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve } from '../../interfaces/helpers'
+import { CommandReporter } from '../../interfaces/command-reporter'
 
 /**
  * For each service in the apollo.config.js file this function will make sure all the services have a local repository,
@@ -21,7 +21,7 @@ import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResol
  * @param cwd - The current working directory.
  * @param listrRenderer - {@link Listr.ListrRendererValue}
  */
-export function servicesInitFn (
+export function servicesInit (
   apolloConfig: ApolloConfig<GatewayConfig>,
   reporter: CommandReporter,
   parsedOutput: Parser.Output<{

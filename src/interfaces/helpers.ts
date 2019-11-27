@@ -1,39 +1,9 @@
-import * as childProcess from 'child_process'
+import * as path from 'path'
+import { access, exec } from '../helpers'
 
-/**
- * Resolves an absolute path out of multiple path segments.
- */
-export interface PathResolve {
-  /**
-   * @param pathSegments - Segments of a whole page like ['/apples/', 'oranges', 'bananas/pineapple'].
-   * @return An absolute path consisting of the path segments.
-   */
-  (...pathSegments: string[]): string
-}
-
-/**
- * Asynchronously tests a user's permissions for the file specified by path.
- */
-export interface AccessFile {
-  /**
-   * @param path - Path to check permissions on.
-   * @param mode - Examples are `fs.constants.F_OK` and `fs.constants.W_OK`.
-   * @return A promise that will throw into the catch if it does not pass.
-   */
-  (path: string, mode: number): Promise<void>
-}
-
-/**
- * Run a command with space separated arguments.
- */
-export interface Exec {
-  /**
-   * @param command - Command to execute like "npm install".
-   * @param options - {@link childProcess.ExecOptions}
-   * @returns The standard out and error of the `command`.
-   */
-  (command: string, options?: childProcess.ExecOptions): Promise<{ stdout: string, stderr: string }>
-}
+export type PathResolve = typeof path.resolve
+export type AccessFile = typeof access
+export type Exec = typeof exec
 
 /**
  * Checks if a path exists and is accessible.

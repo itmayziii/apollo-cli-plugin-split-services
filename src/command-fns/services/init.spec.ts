@@ -1,7 +1,7 @@
-import { servicesInitFn } from './init'
+import { servicesInit } from './init'
 import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 
-describe('servicesInitFn', () => {
+describe('servicesInit', () => {
   let apolloConfig: ApolloConfig<GatewayConfig>
   let reporterSpy: any
   let parsedOutput: any
@@ -54,7 +54,7 @@ describe('servicesInitFn', () => {
 
   it('should clone each repository if it is listed in apollo.config and does not already exist', () => {
     // 'silent' prevents the Listr library from rendering output during our tests.
-    return servicesInitFn(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
+    return servicesInit(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
       .then(() => {
         expect(cloneRepoSpy).toHaveBeenCalledWith(execSpy, 'https://github.com/BudgetDumpster/orders', 'services/orders')
         expect(cloneRepoSpy).not.toHaveBeenCalledWith(execSpy, 'https://github.com/BudgetDumpster/orders', 'services/products')
@@ -64,7 +64,7 @@ describe('servicesInitFn', () => {
 
   it('should run an "npm install" for each service that is a javascript project', () => {
     // 'silent' prevents the Listr library from rendering output during our tests.
-    return servicesInitFn(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
+    return servicesInit(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
       .then(() => {
         expect(execSpy).toHaveBeenCalledWith('npm install', { cwd: '/apples/services/orders' })
         expect(execSpy).toHaveBeenCalledWith('npm install', { cwd: '/apples/services/products' })
@@ -77,7 +77,7 @@ describe('servicesInitFn', () => {
       .withArgs(accessSpy, pathResolverSpy, '/apples/services/orders').and.returnValue(Promise.resolve(false))
       .withArgs(accessSpy, pathResolverSpy, '/apples/services/products').and.returnValue(Promise.resolve(true))
       .withArgs(accessSpy, pathResolverSpy, '/apples/services/accounts').and.returnValue(Promise.resolve(true))
-    return servicesInitFn(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
+    return servicesInit(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, execSpy, pathExistsSpy, isJavascriptProjectSpy, cloneRepoSpy, '/apples', 'silent')
       .then(() => fail())
       .catch((error: Error) => {
         expect(error.message).toBe('Orders is currently not a supported project type. We currently support javascript projects only but this package will happily take pull requests to support other languages.')

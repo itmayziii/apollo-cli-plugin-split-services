@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import * as path from 'path'
 import { access, cloneRepo, exec, isJavascriptProject, pathExists, withCommonGatewaySetup } from '../../helpers'
-import { servicesInitFn } from '../../command-fns/services/init'
+import { servicesInit } from '../../command-fns/services/init'
 
 export default class ServicesInit extends Command {
     public static description = 'Clones and installs dependencies for all services listed in your apollo.config.js file.'
@@ -20,7 +20,7 @@ export default class ServicesInit extends Command {
       const parsedCommand = this.parse(ServicesInit)
       try {
         const cwd = process.cwd()
-        return withCommonGatewaySetup(this, parsedCommand, servicesInitFn, path.resolve, cwd)(
+        return withCommonGatewaySetup(this, parsedCommand, servicesInit, path.resolve, cwd)(
           path.resolve,
           access,
           exec,

@@ -6,6 +6,7 @@ import { ApolloConfig, GatewayConfig, ServiceConfig } from './interfaces/apollo-
 import * as Parser from '@oclif/parser'
 import { Command } from '@oclif/command'
 import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve } from './interfaces/helpers'
+import { CommandReporter } from './interfaces/command-reporter'
 
 export const exec = util.promisify(childProcess.exec)
 export const access = util.promisify(fs.access)
@@ -14,16 +15,6 @@ export const access = util.promisify(fs.access)
  * Omits the first args from a function, useful for HOF that provide a special first arg.
  */
 type OmitFirstThreeArgs<F> = F extends (x: any, y: any, z: any, ...args: infer P) => infer R ? (...args: P) => R : never;
-
-/**
- * Commands usually available through oclif to log to the console or exit the CLI.
- */
-export interface CommandReporter {
-  exit: typeof Command.prototype.exit
-  warn: typeof Command.prototype.warn
-  error: typeof Command.prototype.error
-  log: typeof Command.prototype.log
-}
 
 /**
  * Gets the path of the apollo.config.js file.
