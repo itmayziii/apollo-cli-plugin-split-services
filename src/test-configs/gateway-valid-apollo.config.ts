@@ -4,7 +4,7 @@ const gatewayValidConfig = {
       {
         name: 'Orders',
         gitURL: 'https://github.com/BudgetDumpster/orders',
-        directory: 'orders'
+        directory: 'services/orders'
       }
     ]
   }

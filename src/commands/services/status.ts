@@ -27,7 +27,7 @@ export default class ServicesInit extends Command {
     }
 
     return Promise.all(apolloConfig.splitServices.services.map<Promise<any>>(service => {
-      const serviceDirectory = path.resolve(process.cwd(), 'services', service.directory)
+      const serviceDirectory = path.resolve(process.cwd(), service.directory)
       const randomColor = randomLogColor()
       return exec('git status', { cwd: serviceDirectory })
         .then((val) => {

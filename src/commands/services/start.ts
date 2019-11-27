@@ -29,7 +29,7 @@ export default class ServicesStart extends Command {
     }
 
     return Promise.all(apolloConfig.splitServices.services.reduce<Promise<concurrently.CommandObj>[]>((accumulator, service) => {
-      const serviceDirectory = path.resolve(process.cwd(), 'services', service.directory)
+      const serviceDirectory = path.resolve(process.cwd(), service.directory)
       const blah = isJavascriptProject(access, path.resolve, serviceDirectory)
         .then(isJavascriptProject => {
           if (!isJavascriptProject) {

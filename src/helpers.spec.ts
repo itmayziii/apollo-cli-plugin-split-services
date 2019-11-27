@@ -134,7 +134,7 @@ describe('getGatewayApolloConfig', () => {
     const actual = getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-valid-apollo.config')
     expect(actual.splitServices.services[0].name).toBe('Orders')
     expect(actual.splitServices.services[0].gitURL).toBe('https://github.com/BudgetDumpster/orders')
-    expect(actual.splitServices.services[0].directory).toBe('orders')
+    expect(actual.splitServices.services[0].directory).toBe('services/orders')
   })
 })
 
