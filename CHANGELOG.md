@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [2.0.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.5.1...v2.0.0) (2019-12-02)
+
+
+### Features
+
+* **apollo.config:** changed the expected config setting in apollo.config ([cb33236](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/cb33236))
+* **servicesstart:** moved over services:start command logic to a function for testability ([e4946b0](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/e4946b0))
+
+
+### BREAKING CHANGES
+
+* **apollo.config:** Apollo.config.splitServices.directory is expected to be the full relative directory
+name and this package will no longer assume that services are in a "services" directory.
+
+
+
 ## [1.5.1](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.5.0...v1.5.1) (2019-11-22)
 
 
