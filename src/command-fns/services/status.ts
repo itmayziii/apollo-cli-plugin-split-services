@@ -1,7 +1,9 @@
+import * as nodePath from 'path'
 import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 import * as Parser from '@oclif/parser'
-import { PathResolve, RandomLogColor, Exec } from '../../interfaces/helpers'
+import { RandomLogColor, Exec } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
+import { randomLogColor as randomLogColorFn, exec as execFn } from '../../helpers'
 
 /**
  * Start services listed in your apollo.config.js file.
@@ -9,7 +11,7 @@ import { CommandReporter } from '../../interfaces/command-reporter'
  * @param apolloConfig - {@link GatewayConfig}
  * @param reporter - {@link CommandReporter}
  * @param parsedOutput - Configuration passed in to the CLI like flags and args.
- * @param pathResolver - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param randomLogColor - {@link RandomLogColor}
  * @param exec - {@link Exec}
  * @param cwd - The current working directory.
@@ -21,13 +23,13 @@ export function servicesStatus (
     help: void
     config: string
   }, any>,
-  pathResolver: PathResolve,
-  randomLogColor: RandomLogColor,
-  exec: Exec,
-  cwd: string
+  path: typeof nodePath = nodePath,
+  randomLogColor: RandomLogColor = randomLogColorFn,
+  exec: Exec = execFn,
+  cwd: string = process.cwd()
 ): Promise<any> {
   return Promise.all(apolloConfig.splitServices.services.map<Promise<{ service: string, stdout: string, stderr: string }>>(service => {
-    const serviceDirectory = pathResolver(cwd, service.directory)
+    const serviceDirectory = path.resolve(cwd, service.directory)
     return exec('git status', { cwd: serviceDirectory })
       .then((childProcess) => ({ ...childProcess, service: service.name }))
   }))

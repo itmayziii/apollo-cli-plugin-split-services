@@ -1,8 +1,6 @@
 import { Command, flags } from '@oclif/command'
-import { access, isJavascriptProject, withCommonGatewaySetup } from '../../helpers'
-import * as path from 'path'
+import { withCommonGatewaySetup } from '../../helpers'
 import { servicesStart } from '../../command-fns/services/start'
-import * as concurrently from 'concurrently'
 
 export default class ServicesStart extends Command {
   public static description = 'Start services listed in your apollo.config.js file.'
@@ -21,14 +19,7 @@ export default class ServicesStart extends Command {
   public run (): Promise<any> {
     const parsedCommand = this.parse(ServicesStart)
     try {
-      const cwd = process.cwd()
-      return withCommonGatewaySetup(this, parsedCommand, servicesStart, path.resolve, cwd)(
-        path.resolve,
-        access,
-        isJavascriptProject,
-        concurrently,
-        cwd
-      )
+      return withCommonGatewaySetup(this, parsedCommand, servicesStart)()
         .catch(error => this.error(error, { exit: 1 }))
     } catch (e) {
       this.error(e, { exit: 1 })

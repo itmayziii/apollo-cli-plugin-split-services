@@ -1,9 +1,11 @@
+import * as nodePath from 'path'
 import { ApolloConfig, GatewayConfig } from '../..'
 import * as Parser from '@oclif/parser'
-import { AccessFile, IsJavascriptProject, PathResolve } from '../../interfaces/helpers'
+import { Access, IsJavascriptProject } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
 import { Concurrent } from '../../interfaces/concurrent'
 import * as concurrently from 'concurrently'
+import { access, isJavascriptProject as isJavascriptProjectFn } from '../../helpers'
 
 /**
  * Start services listed in your apollo.config.js file.
@@ -11,8 +13,8 @@ import * as concurrently from 'concurrently'
  * @param apolloConfig - {@link GatewayConfig}
  * @param reporter - {@link CommandReporter}
  * @param parsedOutput - Configuration passed in to the CLI like flags and args.
- * @param pathResolver - {@link PathResolve}
- * @param access - {@link AccessFile}
+ * @param path - NodeJS path module.
+ * @param accessFile - {@link Access}
  * @param isJavascriptProject - {@link IsJavascriptProject}
  * @param concurrent - {@link Concurrent}
  * @param cwd - The current working directory.
@@ -24,15 +26,15 @@ export function servicesStart (
     help: void
     config: string
   }, any>,
-  pathResolver: PathResolve,
-  access: AccessFile,
-  isJavascriptProject: IsJavascriptProject,
-  concurrent: Concurrent,
-  cwd: string
+  path: typeof nodePath = nodePath,
+  accessFile: Access = access,
+  isJavascriptProject: IsJavascriptProject = isJavascriptProjectFn,
+  concurrent: Concurrent = concurrently,
+  cwd: string = process.cwd()
 ): Promise<any> {
   return Promise.all(apolloConfig.splitServices.services.map<Promise<concurrently.CommandObj | undefined>>(service => {
-    const serviceDirectory = pathResolver(cwd, service.directory)
-    return isJavascriptProject(access, pathResolver, serviceDirectory)
+    const serviceDirectory = path.resolve(cwd, service.directory)
+    return isJavascriptProject(accessFile, path, serviceDirectory)
       .then(isJavascriptProject => {
         if (!isJavascriptProject) {
           reporter.warn(`Unsupported project type for ${service.name} service, service will not be started.`)

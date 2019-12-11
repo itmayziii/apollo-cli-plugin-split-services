@@ -1,15 +1,16 @@
-import * as fs from 'fs'
+import * as nodeFs from 'fs'
+import * as nodePath from 'path'
 import * as util from 'util'
 import * as childProcess from 'child_process'
 import chalk, { Chalk } from 'chalk'
 import { ApolloConfig, GatewayConfig, ServiceConfig } from './interfaces/apollo-config'
 import * as Parser from '@oclif/parser'
 import { Command } from '@oclif/command'
-import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve, RandomLogColor } from './interfaces/helpers'
+import { Access, CloneRepo, Exec, IsJavascriptProject, PathExists, RandomLogColor } from './interfaces/helpers'
 import { CommandReporter } from './interfaces/command-reporter'
 
 export const exec = util.promisify(childProcess.exec)
-export const access = util.promisify(fs.access)
+export const access = util.promisify(nodeFs.access)
 
 /**
  * Omits the first args from a function, useful for HOF that provide a special first arg.
@@ -23,27 +24,27 @@ type OmitFirstThreeArgs<F> = F extends (x: any, y: any, z: any, ...args: infer P
  * it was already.
  * If a `configPath` is provided and it is relative it will return the `configPath` relative to the `cwd`.
  *
- * @param pathResolver - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param cwd - The current working directory.
  * @param configPath - Path to the apollo.config.js file.
  * @returns The absolute path to the apollo.config.js file.
  */
-export function getConfigPath (pathResolver: PathResolve, cwd: string, configPath: string): string {
+export function getConfigPath (path: typeof nodePath, cwd: string, configPath: string): string {
   if (configPath.startsWith('/')) {
     return configPath
   }
 
-  return pathResolver(cwd, configPath)
+  return path.resolve(cwd, configPath)
 }
 
-export const pathExists: PathExists = function pathExists (accessFileFn: AccessFile, aPath: string): Promise<boolean> {
-  return accessFileFn(aPath, fs.constants.F_OK)
+export const pathExists: PathExists = function pathExists (accessFileFn: Access, aPath: string): Promise<boolean> {
+  return accessFileFn(aPath, nodeFs.constants.F_OK)
     .then(() => true)
     .catch(() => false)
 }
 
-export const isJavascriptProject: IsJavascriptProject = function isJavascriptProject (accessFile: AccessFile, pathResolveFn: PathResolve, directory: string): Promise<boolean> {
-  return pathExists(accessFile, pathResolveFn(directory, 'package.json'))
+export const isJavascriptProject: IsJavascriptProject = function isJavascriptProject (accessFile: Access, path: typeof nodePath, directory: string): Promise<boolean> {
+  return pathExists(accessFile, path.resolve(directory, 'package.json'))
 }
 
 export const cloneRepo: CloneRepo = function cloneRepo (exec: Exec, gitURL: string, directory?: string): Promise<{ stdout: string, stderr: string }> {
@@ -54,15 +55,15 @@ export const cloneRepo: CloneRepo = function cloneRepo (exec: Exec, gitURL: stri
 /**
  * Gets the apollo.config.js file meant for a gateway and verifies it is valid.
  *
- * @param pathResolveFn - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param cwd - The current working directory.
  * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
  * @returns The apollo configuration specific to the gateway or one of the split services.
  * @throws Error - When the apollo.config.js file does not exist or is invalid.
  */
-export function getGatewayApolloConfig (pathResolveFn: PathResolve, cwd: string, configPath: string): ApolloConfig<GatewayConfig> {
+export function getGatewayApolloConfig (path: typeof nodePath, cwd: string, configPath: string): ApolloConfig<GatewayConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
+  const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(path, cwd, configPath))
   if (!apolloConfig.splitServices) {
     throw new Error('apollo.config.js is missing a "splitServices" key')
   }
@@ -83,14 +84,14 @@ export function getGatewayApolloConfig (pathResolveFn: PathResolve, cwd: string,
 /**
  * Gets the apollo.config.js file meant for a service and verifies it is valid.
  *
- * @param pathResolveFn - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param cwd - The current working directory.
  * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
  * @returns The apollo configuration specific to the gateway or one of the split services.
  */
-export function getServiceApolloConfig (pathResolveFn: PathResolve, cwd: string, configPath: string): ApolloConfig<ServiceConfig> {
+export function getServiceApolloConfig (path: typeof nodePath, cwd: string, configPath: string): ApolloConfig<ServiceConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const apolloConfig: Partial<ApolloConfig<ServiceConfig>> = require(getConfigPath(pathResolveFn, cwd, configPath))
+  const apolloConfig: Partial<ApolloConfig<ServiceConfig>> = require(getConfigPath(path, cwd, configPath))
   if (!apolloConfig.splitServices) {
     throw new Error('apollo.config.js is missing a "splitServices" key')
   }
@@ -110,7 +111,7 @@ export function getServiceApolloConfig (pathResolveFn: PathResolve, cwd: string,
  * @param commandInstance - Instance of an {@link Command}
  * @param parsedOutput - Output of calling this.parse(Command) from an Oclif command.
  * @param fn - Function that common config should be passed to and will take over the actual work of running the command logic.
- * @param pathResolver - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param cwd - The current working directory.
  */
 export function withCommonGatewaySetup<
@@ -118,8 +119,8 @@ export function withCommonGatewaySetup<
     T extends Parser.Output<any, any>,
     F extends (apolloConfig: ApolloConfig<GatewayConfig>, reporter: CommandReporter, parsedOutput: T, ...args: any[]) => Promise<any>
   >
-(commandInstance: I, parsedOutput: T, fn: F, pathResolver: PathResolve, cwd: string): (...funcArgs: Parameters<OmitFirstThreeArgs<F>>) => Promise<any> {
-  const apolloConfig = getGatewayApolloConfig(pathResolver, cwd, parsedOutput.flags.config)
+(commandInstance: I, parsedOutput: T, fn: F, path: typeof nodePath = nodePath, cwd: string = process.cwd()): (...funcArgs: Parameters<OmitFirstThreeArgs<F>>) => Promise<any> {
+  const apolloConfig = getGatewayApolloConfig(path, cwd, parsedOutput.flags.config)
   const reporter: CommandReporter = {
     exit: commandInstance.exit,
     warn: commandInstance.warn,

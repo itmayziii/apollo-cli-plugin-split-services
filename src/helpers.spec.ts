@@ -12,22 +12,24 @@ import * as fs from 'fs'
 describe('getConfigPath', () => {
   it('should return the apollo.config.js file from the current working directory if a config path is not provided',
     () => {
-      const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'apollo.config.js').and.returnValue('/apples/apollo.config.js')
-      const actual = getConfigPath(pathResolveFnSpy, '/apples', 'apollo.config.js')
+      const pathSpy = jasmine.createSpyObj(['resolve'])
+      pathSpy.resolve.withArgs('/apples', 'apollo.config.js').and.returnValue('/apples/apollo.config.js')
+      const actual = getConfigPath(pathSpy, '/apples', 'apollo.config.js')
       const expected = '/apples/apollo.config.js'
       expect(actual).toBe(expected)
     })
 
   it('should simply return the passed in config path if it is an absolute path', () => {
-    const pathResolveFnSpy = jasmine.createSpy('pathResolve')
-    const actual = getConfigPath(pathResolveFnSpy, '/apples', '/Users/Tmay/bananas/apollo.config.js')
+    const pathSpy = jasmine.createSpyObj(['resolve'])
+    const actual = getConfigPath(pathSpy, '/apples', '/Users/Tmay/bananas/apollo.config.js')
     const expected = '/Users/Tmay/bananas/apollo.config.js'
     expect(actual).toBe(expected)
   })
 
   it('should return the config path relative to the current directory if the config path is relative', () => {
-    const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'bananas/apollo.config.js').and.returnValue('/apples/bananas/apollo.config.js')
-    const actual = getConfigPath(pathResolveFnSpy, '/apples', 'bananas/apollo.config.js')
+    const pathSpy = jasmine.createSpyObj(['resolve'])
+    pathSpy.resolve.withArgs('/apples', 'bananas/apollo.config.js').and.returnValue('/apples/bananas/apollo.config.js')
+    const actual = getConfigPath(pathSpy, '/apples', 'bananas/apollo.config.js')
     const expected = '/apples/bananas/apollo.config.js'
     expect(actual).toBe(expected)
   })
@@ -54,8 +56,9 @@ describe('pathExists', () => {
 describe('isJavascriptProject', () => {
   it('should return true if the project has a package.json file in its root', () => {
     const accessFileFnSpy = jasmine.createSpy('access').withArgs('/apples/package.json', fs.constants.F_OK).and.returnValue(Promise.resolve())
-    const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
-    return isJavascriptProject(accessFileFnSpy, pathResolveFnSpy, '/apples')
+    const pathSpy = jasmine.createSpyObj(['resolve'])
+    pathSpy.resolve.withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
+    return isJavascriptProject(accessFileFnSpy, pathSpy, '/apples')
       .then(actual => {
         expect(actual).toBeTrue()
       })
@@ -63,8 +66,9 @@ describe('isJavascriptProject', () => {
 
   it('should return false if the project does not have a package.json in its root', () => {
     const accessFileFnSpy = jasmine.createSpy('access').withArgs('/apples/package.json', fs.constants.F_OK).and.returnValue(Promise.reject(new Error('no file')))
-    const pathResolveFnSpy = jasmine.createSpy('pathResolve').withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
-    return isJavascriptProject(accessFileFnSpy, pathResolveFnSpy, '/apples')
+    const pathSpy = jasmine.createSpyObj(['resolve'])
+    pathSpy.resolve.withArgs('/apples', 'package.json').and.returnValue('/apples/package.json')
+    return isJavascriptProject(accessFileFnSpy, pathSpy, '/apples')
       .then(actual => {
         expect(actual).toBeFalse()
       })
@@ -111,26 +115,26 @@ describe('randomLogColor', () => {
 
 describe('getGatewayApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
+    expect(() => getGatewayApolloConfig(path, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
+    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices" key')
   })
 
   it('should throw an error if the config file is missing a "splitServices.services" key', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
+    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices.services" key')
   })
 
   it('should throw an error if the services are missing any of their required properties', () => {
-    expect(() => getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-props-apollo.config'))
+    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-props-apollo.config'))
       .toThrowError('apollo.config.js is missing a "gitURL", "name", or "directory" property.')
   })
 
   it('should return an apollo config if the file exists and is valid', () => {
-    const actual = getGatewayApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/gateway-valid-apollo.config')
+    const actual = getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/gateway-valid-apollo.config')
     expect(actual.splitServices.services[0].name).toBe('Orders')
     expect(actual.splitServices.services[0].gitURL).toBe('https://github.com/BudgetDumpster/orders')
     expect(actual.splitServices.services[0].directory).toBe('services/orders')
@@ -139,21 +143,21 @@ describe('getGatewayApolloConfig', () => {
 
 describe('getServiceApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getServiceApolloConfig(path.resolve, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
+    expect(() => getServiceApolloConfig(path, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {
-    expect(() => getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
+    expect(() => getServiceApolloConfig(path, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices" key')
   })
 
   it('should throw an error if the config file is missing a "splitServices.url" key', () => {
-    expect(() => getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
+    expect(() => getServiceApolloConfig(path, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
       .toThrowError('apollo.config.js is missing a "splitServices.url" key')
   })
 
   it('should return an apollo config if the file exists and is valid', () => {
-    const actual = getServiceApolloConfig(path.resolve, process.cwd(), 'dist/test-configs/service-valid-apollo.config')
+    const actual = getServiceApolloConfig(path, process.cwd(), 'dist/test-configs/service-valid-apollo.config')
     expect(actual.splitServices.url).toBe('http://127.0.0.1:4200/graphql')
   })
 })

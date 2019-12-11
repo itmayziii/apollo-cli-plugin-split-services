@@ -1,6 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import * as path from 'path'
-import { access, cloneRepo, exec, isJavascriptProject, pathExists, withCommonGatewaySetup } from '../../helpers'
+import { withCommonGatewaySetup } from '../../helpers'
 import { servicesInit } from '../../command-fns/services/init'
 
 export default class ServicesInit extends Command {
@@ -19,16 +18,7 @@ export default class ServicesInit extends Command {
     public run (): Promise<any> {
       const parsedCommand = this.parse(ServicesInit)
       try {
-        const cwd = process.cwd()
-        return withCommonGatewaySetup(this, parsedCommand, servicesInit, path.resolve, cwd)(
-          path.resolve,
-          access,
-          exec,
-          pathExists,
-          isJavascriptProject,
-          cloneRepo,
-          cwd
-        )
+        return withCommonGatewaySetup(this, parsedCommand, servicesInit)()
           .catch(error => this.error(error, { exit: 1 }))
       } catch (error) {
         this.error(error, { exit: 1 })

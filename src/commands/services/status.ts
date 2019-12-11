@@ -1,6 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import { exec, randomLogColor, withCommonGatewaySetup } from '../../helpers'
-import * as path from 'path'
+import { withCommonGatewaySetup } from '../../helpers'
 import { servicesStatus } from '../../command-fns/services/status'
 
 export default class ServicesStatus extends Command {
@@ -19,13 +18,7 @@ export default class ServicesStatus extends Command {
   public run (): Promise<any> {
     const parsedCommand = this.parse(ServicesStatus)
     try {
-      const cwd = process.cwd()
-      return withCommonGatewaySetup(this, parsedCommand, servicesStatus, path.resolve, cwd)(
-        path.resolve,
-        randomLogColor,
-        exec,
-        cwd
-      )
+      return withCommonGatewaySetup(this, parsedCommand, servicesStatus)()
         .catch((error: Error) => this.error(error, { exit: 1 }))
     } catch (error) {
       this.error(error, { exit: 1 })

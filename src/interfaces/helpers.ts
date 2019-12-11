@@ -1,9 +1,8 @@
-import * as path from 'path'
+import * as nodePath from 'path'
 import { access, exec } from '../helpers'
 import { Chalk } from 'chalk'
 
-export type PathResolve = typeof path.resolve
-export type AccessFile = typeof access
+export type Access = typeof access
 export type Exec = typeof exec
 
 /**
@@ -11,11 +10,11 @@ export type Exec = typeof exec
  */
 export interface PathExists {
   /**
-   * @param accessFile - {@link AccessFile}
+   * @param accessFile - {@link Access}
    * @param aPath - Path to the file or directory.
    * @returns Whether or not a path exists and is accessible.
    */
-  (accessFile: AccessFile, aPath: string): Promise<boolean>
+  (accessFile: Access, aPath: string): Promise<boolean>
 }
 
 /**
@@ -23,12 +22,12 @@ export interface PathExists {
  */
 export interface IsJavascriptProject {
   /**
-   * @param accessFile - {@link AccessFile}
-   * @param pathResolveFn - {@link PathResolve}
+   * @param accessFile - {@link Access}
+   * @param path - NodeJS path module.
    * @param directory - path to directory to check if it is a javascript project.
    * @returns Whether or not the `directory` is a javascript project.
    */
-  (accessFile: AccessFile, pathResolveFn: PathResolve, directory: string): Promise<boolean>
+  (accessFile: Access, path: typeof nodePath, directory: string): Promise<boolean>
 }
 
 /**

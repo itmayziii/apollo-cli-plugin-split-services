@@ -5,7 +5,7 @@ describe('servicesStart', () => {
   let apolloConfig: ApolloConfig<GatewayConfig>
   let reporterSpy: any
   let parsedOutput: any
-  let pathResolverSpy: jasmine.Spy
+  let pathSpy: jasmine.SpyObj<any>
   let randomColorFn: jasmine.Spy
   let randomLogColorSpy: jasmine.Spy
   let execSpy: jasmine.Spy
@@ -33,7 +33,8 @@ describe('servicesStart', () => {
     }
     reporterSpy = jasmine.createSpyObj('reporter', ['log', 'warn'])
     parsedOutput = jasmine.createSpyObj('parsedOutput', [''])
-    pathResolverSpy = jasmine.createSpy('pathResolver')
+    pathSpy = jasmine.createSpyObj(['resolve'])
+    pathSpy.resolve
       .withArgs('/giraffes', 'services/orders').and.returnValue('/giraffes/services/orders')
       .withArgs('/giraffes', 'services/products').and.returnValue('/giraffes/services/products')
       .withArgs('/giraffes', 'services/accounts').and.returnValue('/giraffes/services/accounts')
@@ -47,7 +48,7 @@ describe('servicesStart', () => {
   })
 
   it('should log the output of "git status" for each service', () => {
-    return servicesStatus(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, randomLogColorSpy, execSpy, '/giraffes')
+    return servicesStatus(apolloConfig, reporterSpy, parsedOutput, pathSpy, randomLogColorSpy, execSpy, '/giraffes')
       .then(() => {
         expect(randomColorFn).toHaveBeenCalledTimes(6)
         expect(reporterSpy.log).toHaveBeenCalledTimes(9)

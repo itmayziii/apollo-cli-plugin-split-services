@@ -1,9 +1,17 @@
+import * as nodePath from 'path'
 import * as Parser from '@oclif/parser'
 import { ApolloConfig, GatewayConfig, SplitService } from '../../interfaces/apollo-config'
 import * as Listr from 'listr'
 import { Observable } from 'rxjs'
-import { AccessFile, CloneRepo, Exec, IsJavascriptProject, PathExists, PathResolve } from '../../interfaces/helpers'
+import { Access, CloneRepo, Exec, IsJavascriptProject, PathExists } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
+import {
+  access,
+  cloneRepo as cloneRepoFn,
+  exec as execCommand,
+  isJavascriptProject as isJavascriptProjectFn,
+  pathExists as doesPathExist
+} from '../../helpers'
 
 /**
  * For each service in the apollo.config.js file this function will make sure all the services have a local repository,
@@ -12,8 +20,8 @@ import { CommandReporter } from '../../interfaces/command-reporter'
  * @param apolloConfig - {@link GatewayConfig}
  * @param reporter - {@link CommandReporter}
  * @param parsedOutput - Configuration passed in to the CLI like flags and args.
- * @param pathResolver - {@link PathResolve}
- * @param access - {@link AccessFile}
+ * @param path - NodeJS path module.
+ * @param accessFile - {@link Access}
  * @param exec - {@link Exec}
  * @param pathExists - {@link PathExists}
  * @param isJavascriptProject - {@link IsJavascriptProject}
@@ -28,17 +36,17 @@ export function servicesInit (
     help: void
     config: string
   }, any>,
-  pathResolver: PathResolve,
-  access: AccessFile,
-  exec: Exec,
-  pathExists: PathExists,
-  isJavascriptProject: IsJavascriptProject,
-  cloneRepo: CloneRepo,
-  cwd: string,
-  listrRenderer: Listr.ListrRendererValue<Listr.ListrOptions> = 'default'
+  listrRenderer: Listr.ListrRendererValue<Listr.ListrOptions> = 'default',
+  path: typeof nodePath = nodePath,
+  accessFile: Access = access,
+  exec: Exec = execCommand,
+  pathExists: PathExists = doesPathExist,
+  isJavascriptProject: IsJavascriptProject = isJavascriptProjectFn,
+  cloneRepo: CloneRepo = cloneRepoFn,
+  cwd: string = process.cwd()
 ): Promise<any> {
   const tasks = apolloConfig.splitServices.services.map<Listr.ListrTask>(
-    service => createTask(service, cwd, pathExists, isJavascriptProject, cloneRepo, pathResolver, exec, access)
+    service => createTask(service, cwd, pathExists, isJavascriptProject, cloneRepo, path, exec, accessFile)
   )
   const listr = new Listr({ concurrent: true, renderer: listrRenderer })
   listr.add(tasks)
@@ -53,9 +61,9 @@ export function servicesInit (
  * @param pathExists - {@link PathExists}
  * @param isJavascriptProject - {@link IsJavascriptProject}
  * @param cloneRepo - {@link CloneRepo}
- * @param pathResolver - {@link PathResolve}
+ * @param path - NodeJS path module.
  * @param exec - {@link Exec}
- * @param access - {@link AccessFile}
+ * @param access - {@link Access}
  */
 function createTask (
   service: SplitService,
@@ -63,15 +71,15 @@ function createTask (
   pathExists: PathExists,
   isJavascriptProject: IsJavascriptProject,
   cloneRepo: CloneRepo,
-  pathResolver: PathResolve,
+  path: typeof nodePath,
   exec: Exec,
-  access: AccessFile
+  access: Access
 ): Listr.ListrTask<any> {
   return {
     title: service.name,
     task (): Listr.ListrTaskResult<any> {
       return new Observable(observer => {
-        const serviceDirectory = pathResolver(cwd, service.directory)
+        const serviceDirectory = path.resolve(cwd, service.directory)
         pathExists(access, serviceDirectory)
           .then(function cloneService (doesServiceExist: boolean) {
             if (doesServiceExist) return
@@ -79,7 +87,7 @@ function createTask (
             return cloneRepo(exec, service.gitURL, `${service.directory}`)
           })
           .then(() => observer.next('Installing/Updating Dependencies'))
-          .then(() => isJavascriptProject(access, pathResolver, serviceDirectory))
+          .then(() => isJavascriptProject(access, path, serviceDirectory))
           .then(function installJavascriptDependencies (isJavascriptProject) { // Future might provide support for Golang using go.mod etc..
             if (!isJavascriptProject) {
               observer.error(new Error(`${service.name} is currently not a supported project type. We currently support javascript projects only but this package will happily take pull requests to support other languages.`))

@@ -5,7 +5,7 @@ describe('servicesStart', () => {
   let apolloConfig: ApolloConfig<GatewayConfig>
   let reporterSpy: any
   let parsedOutput: any
-  let pathResolverSpy: jasmine.Spy
+  let pathSpy: jasmine.SpyObj<any>
   let accessSpy: jasmine.Spy
   let isJavascriptProjectSpy: jasmine.Spy
   let concurrentSpy: jasmine.Spy
@@ -33,20 +33,21 @@ describe('servicesStart', () => {
     }
     reporterSpy = jasmine.createSpyObj('reporter', ['warn', 'error'])
     parsedOutput = jasmine.createSpyObj('parsedOutput', [''])
-    pathResolverSpy = jasmine.createSpy('pathResolver')
+    pathSpy = jasmine.createSpyObj(['resolve'])
+    pathSpy.resolve
       .withArgs('/giraffes', 'services/orders').and.returnValue('/giraffes/services/orders')
       .withArgs('/giraffes', 'services/products').and.returnValue('/giraffes/services/products')
       .withArgs('/giraffes', 'services/accounts').and.returnValue('/giraffes/services/accounts')
     accessSpy = jasmine.createSpy('access')
     isJavascriptProjectSpy = jasmine.createSpy('isJavascriptProject')
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(false))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(true))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(false))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(false))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(true))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(false))
     concurrentSpy = jasmine.createSpy('concurrent')
   })
 
   it('should warn the user if the project type is not supported', () => {
-    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
+    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
       .then(() => {
         expect(reporterSpy.warn).toHaveBeenCalledTimes(2)
         expect(reporterSpy.warn).toHaveBeenCalledWith('Unsupported project type for Orders service, service will not be started.')
@@ -61,10 +62,10 @@ describe('servicesStart', () => {
 
   it('should error if no services could be started', () => {
     const isJavascriptProjectSpy = jasmine.createSpy('isJavascriptProject')
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(false))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(false))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(false))
-    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(false))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(false))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(false))
+    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
       .then(() => {
         expect(reporterSpy.error).toHaveBeenCalledTimes(1)
         expect(reporterSpy.error).toHaveBeenCalledWith('Failed to start any of the services.', { exit: 1 })
@@ -73,10 +74,10 @@ describe('servicesStart', () => {
 
   it('should start each command in parallel with eachother', () => {
     const isJavascriptProjectSpy = jasmine.createSpy('isJavascriptProject')
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(true))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(true))
-      .withArgs(accessSpy, pathResolverSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(true))
-    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathResolverSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/orders').and.returnValue(Promise.resolve(true))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/products').and.returnValue(Promise.resolve(true))
+      .withArgs(accessSpy, pathSpy, '/giraffes/services/accounts').and.returnValue(Promise.resolve(true))
+    return servicesStart(apolloConfig, reporterSpy, parsedOutput, pathSpy, accessSpy, isJavascriptProjectSpy, concurrentSpy, '/giraffes')
       .then(() => {
         expect(concurrentSpy).toHaveBeenCalledTimes(1)
         expect(concurrentSpy).toHaveBeenCalledWith([
