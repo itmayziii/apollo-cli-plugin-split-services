@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [2.1.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v2.0.0...v2.1.0) (2019-12-11)
+
+
+### Features
+
+* **docker network hook:** added a prerun hook that creates a docker network if apollo config has it ([d423fe7](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/d423fe7))
+
+
+
 # [2.0.0](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v1.5.1...v2.0.0) (2019-12-02)
 
 
