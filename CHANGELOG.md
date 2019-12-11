@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.3](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v2.1.2...v2.1.3) (2019-12-11)
+
+
+### Bug Fixes
+
+* **docker-network-prerun:** now try/catching an error that gets thrown when not config exists ([6af34fd](https://github.com/itmayziii/apollo-cli-plugin-split-services/commit/6af34fd))
+
+
+
 ## [2.1.2](https://github.com/itmayziii/apollo-cli-plugin-split-services/compare/v2.1.1...v2.1.2) (2019-12-11)
 
 
