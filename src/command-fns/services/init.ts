@@ -45,7 +45,6 @@ export function servicesInit (
   cloneRepo: CloneRepo = cloneRepoFn,
   cwd: string = process.cwd()
 ): Promise<any> {
-  console.log('STARTING STARTING STARTING')
   const tasks = apolloConfig.splitServices.services.map<Listr.ListrTask>(
     service => createTask(service, cwd, pathExists, isJavascriptProject, cloneRepo, path, exec, accessFile)
   )
