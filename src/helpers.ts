@@ -51,17 +51,17 @@ export const cloneRepo: CloneRepo = function cloneRepo (exec: Exec, gitURL: stri
   const command = directory ? `git clone ${gitURL} ${directory}` : `git clone ${gitURL}`
   return exec(command)
 }
-
 /**
  * Gets the apollo.config.js file meant for a gateway and verifies it is valid.
  *
+ * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
  * @param path - NodeJS path module.
  * @param cwd - The current working directory.
- * @param configPath - Path to the apollo.config.js file, can be absolute or relative (to the `cwd`).
  * @returns The apollo configuration specific to the gateway or one of the split services.
  * @throws Error - When the apollo.config.js file does not exist or is invalid.
  */
-export function getGatewayApolloConfig (path: typeof nodePath, cwd: string, configPath: string): ApolloConfig<GatewayConfig> {
+
+export function getGatewayApolloConfig (configPath: string, path: typeof nodePath = nodePath, cwd: string = process.cwd()): ApolloConfig<GatewayConfig> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apolloConfig: Partial<ApolloConfig<GatewayConfig>> = require(getConfigPath(path, cwd, configPath))
   if (!apolloConfig.splitServices) {
@@ -120,7 +120,7 @@ export function withCommonGatewaySetup<
     F extends (apolloConfig: ApolloConfig<GatewayConfig>, reporter: CommandReporter, parsedOutput: T, ...args: any[]) => Promise<any>
   >
 (commandInstance: I, parsedOutput: T, fn: F, path: typeof nodePath = nodePath, cwd: string = process.cwd()): (...funcArgs: Parameters<OmitFirstThreeArgs<F>>) => Promise<any> {
-  const apolloConfig = getGatewayApolloConfig(path, cwd, parsedOutput.flags.config)
+  const apolloConfig = getGatewayApolloConfig(parsedOutput.flags.config, path, cwd)
   const reporter: CommandReporter = {
     exit: commandInstance.exit,
     warn: commandInstance.warn,

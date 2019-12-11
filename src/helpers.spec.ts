@@ -115,26 +115,26 @@ describe('randomLogColor', () => {
 
 describe('getGatewayApolloConfig', () => {
   it('should throw an error if the config file does not exist', () => {
-    expect(() => getGatewayApolloConfig(path, '/Users/notARealUser/fakePath', 'apollo.config.js')).toThrow()
+    expect(() => getGatewayApolloConfig('apollo.config.js', path, '/Users/notARealUser/fakePath')).toThrow()
   })
 
   it('should throw an error if the config file is missing a "splitServices" key', () => {
-    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/missing-split-services-apollo.config'))
+    expect(() => getGatewayApolloConfig('dist/test-configs/missing-split-services-apollo.config', path, process.cwd()))
       .toThrowError('apollo.config.js is missing a "splitServices" key')
   })
 
   it('should throw an error if the config file is missing a "splitServices.services" key', () => {
-    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/empty-split-services-apollo.config'))
+    expect(() => getGatewayApolloConfig('dist/test-configs/empty-split-services-apollo.config', path, process.cwd()))
       .toThrowError('apollo.config.js is missing a "splitServices.services" key')
   })
 
   it('should throw an error if the services are missing any of their required properties', () => {
-    expect(() => getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/gateway-missing-split-services-services-props-apollo.config'))
+    expect(() => getGatewayApolloConfig('dist/test-configs/gateway-missing-split-services-services-props-apollo.config', path, process.cwd()))
       .toThrowError('apollo.config.js is missing a "gitURL", "name", or "directory" property.')
   })
 
   it('should return an apollo config if the file exists and is valid', () => {
-    const actual = getGatewayApolloConfig(path, process.cwd(), 'dist/test-configs/gateway-valid-apollo.config')
+    const actual = getGatewayApolloConfig('dist/test-configs/gateway-valid-apollo.config', path, process.cwd())
     expect(actual.splitServices.services[0].name).toBe('Orders')
     expect(actual.splitServices.services[0].gitURL).toBe('https://github.com/BudgetDumpster/orders')
     expect(actual.splitServices.services[0].directory).toBe('services/orders')

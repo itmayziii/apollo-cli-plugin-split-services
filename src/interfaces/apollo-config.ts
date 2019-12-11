@@ -10,6 +10,9 @@ export interface ApolloConfig<T extends GatewayConfig | ServiceConfig> {
  * Gateway configuration
  */
 export interface GatewayConfig {
+  docker?: {
+    network: string
+  }
   // Gateways have services in them.
   services: SplitService[]
 }

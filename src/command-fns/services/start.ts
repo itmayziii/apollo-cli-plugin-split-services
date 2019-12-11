@@ -3,8 +3,7 @@ import { ApolloConfig, GatewayConfig } from '../..'
 import * as Parser from '@oclif/parser'
 import { Access, IsJavascriptProject } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
-import { Concurrent } from '../../interfaces/concurrent'
-import * as concurrently from 'concurrently'
+import concurrently from 'concurrently'
 import { access, isJavascriptProject as isJavascriptProjectFn } from '../../helpers'
 
 /**
@@ -16,7 +15,7 @@ import { access, isJavascriptProject as isJavascriptProjectFn } from '../../help
  * @param path - NodeJS path module.
  * @param accessFile - {@link Access}
  * @param isJavascriptProject - {@link IsJavascriptProject}
- * @param concurrent - {@link Concurrent}
+ * @param concurrent - concurrently package.
  * @param cwd - The current working directory.
  */
 export function servicesStart (
@@ -29,7 +28,7 @@ export function servicesStart (
   path: typeof nodePath = nodePath,
   accessFile: Access = access,
   isJavascriptProject: IsJavascriptProject = isJavascriptProjectFn,
-  concurrent: Concurrent = concurrently,
+  concurrent: typeof concurrently = concurrently,
   cwd: string = process.cwd()
 ): Promise<any> {
   return Promise.all(apolloConfig.splitServices.services.map<Promise<concurrently.CommandObj | undefined>>(service => {

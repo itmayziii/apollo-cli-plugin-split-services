@@ -1,7 +1,7 @@
 import * as nodePath from 'path'
 import * as Parser from '@oclif/parser'
 import { ApolloConfig, GatewayConfig, SplitService } from '../../interfaces/apollo-config'
-import * as Listr from 'listr'
+import Listr from 'listr'
 import { Observable } from 'rxjs'
 import { Access, CloneRepo, Exec, IsJavascriptProject, PathExists } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
@@ -45,6 +45,7 @@ export function servicesInit (
   cloneRepo: CloneRepo = cloneRepoFn,
   cwd: string = process.cwd()
 ): Promise<any> {
+  console.log('STARTING STARTING STARTING')
   const tasks = apolloConfig.splitServices.services.map<Listr.ListrTask>(
     service => createTask(service, cwd, pathExists, isJavascriptProject, cloneRepo, path, exec, accessFile)
   )
