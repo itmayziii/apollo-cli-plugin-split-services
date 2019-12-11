@@ -2,7 +2,6 @@ import { ApolloConfig, GatewayConfig } from '../../interfaces/apollo-config'
 import * as Parser from '@oclif/parser'
 import { PathResolve, RandomLogColor, Exec } from '../../interfaces/helpers'
 import { CommandReporter } from '../../interfaces/command-reporter'
-import { ChildProcess } from 'child_process'
 
 /**
  * Start services listed in your apollo.config.js file.

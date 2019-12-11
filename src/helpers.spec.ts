@@ -4,8 +4,7 @@ import {
   getGatewayApolloConfig,
   getServiceApolloConfig,
   isJavascriptProject,
-  pathExists,
-  randomLogColor
+  pathExists
 } from './helpers'
 import * as path from 'path'
 import * as fs from 'fs'
