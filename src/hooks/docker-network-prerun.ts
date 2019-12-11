@@ -6,7 +6,7 @@ import * as parser from '@oclif/parser'
 
 const dockerNetworkPrerun: Hook<'prerun'> = function dockerNetworkPrerunHook (options) {
   const parsedOutput = parser.parse(options.argv, options.Command)
-  const apolloConfig = getGatewayApolloConfig(parsedOutput.flags.config)
+  const apolloConfig = getGatewayApolloConfig(parsedOutput.flags.config || 'apollo.config.js')
   return dockerNetwork(options, apolloConfig, new Docker())
 }
 
